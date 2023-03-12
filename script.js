@@ -12,7 +12,7 @@ const loader = new GLTFLoader();
 const fileName = './soda_cans/scene.gltf';
 let model;
 
-loader.load(fileName, function (gltf) {
+loader.load(fileName, function(gltf) {
   model = gltf.scene;
   scene.add(model);
   addLight();
@@ -20,7 +20,7 @@ loader.load(fileName, function (gltf) {
   scene.add(camera);
   // renderer.render(scene, camera);
   animate();
-}, undefined, function (e) {
+}, undefined, function(e) {
   console.error(e);
 });
 
