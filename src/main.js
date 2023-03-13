@@ -1,19 +1,17 @@
 import Loop from './loop.js';
+import Stats from './stats.js'
 import Resizer from './resizer.js';
 import { default as SpinningCubeWorld } from './worlds/cube/world.js';
 import { default as NaturalWorld } from './worlds/natural/world.js';
 
 export default class Main {
-  camera;
-  renderer;
-  scene;
-  loop;
-
   constructor(container) {
+    this.container = container;
     this.camera = this.createCamera();
     this.renderer = this.createRenderer();
     this.scene = this.createScene();
-    this.loop = new Loop(this.camera, this.scene, this.renderer);
+    this.stats = this.createStats();
+    this.loop = new Loop(this);
     container.append(this.renderer.domElement);
 
     const world = new SpinningCubeWorld(this);
@@ -62,6 +60,12 @@ export default class Main {
     const light = new THREE.DirectionalLight('white', 8);
     light.position.set(10, 10, 10);
     return light;
+  }
+
+  createStats() {
+    const stats = Stats()
+    this.container.appendChild(stats.dom);
+    return stats;
   }
 
 }

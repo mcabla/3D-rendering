@@ -1,20 +1,26 @@
 export default class Loop {
   static clock = new THREE.Clock();
-  
-  constructor(camera, scene, renderer) {
-    this.camera = camera;
-    this.scene = scene;
-    this.renderer = renderer;
+
+  constructor(main) {
+    this.main = main;
+    this.stats = main.stats;
+    this.camera = main.camera;
+    this.scene = main.scene;
+    this.renderer = main.renderer;
     this.updatables = [];
   }
 
   start() {
     this.renderer.setAnimationLoop(() => {
+      this.stats.begin();
+      
       // tell every animated object to tick forward one frame
       this.tick();
 
       // render a frame
       this.renderer.render(this.scene, this.camera);
+
+      this.stats.end();
     });
   }
 
