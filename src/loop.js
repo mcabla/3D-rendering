@@ -1,10 +1,11 @@
+import * as THREE from 'three';
+
 export default class Loop {
   static clock = new THREE.Clock();
 
   constructor(main) {
     this.main = main;
     this.stats = main.stats;
-    this.camera = main.camera;
     this.scene = main.scene;
     this.renderer = main.renderer;
     this.updatables = [];
@@ -13,12 +14,12 @@ export default class Loop {
   start() {
     this.renderer.setAnimationLoop(() => {
       this.stats.begin();
-      
+
       // tell every animated object to tick forward one frame
       this.tick();
 
       // render a frame
-      this.renderer.render(this.scene, this.camera);
+      this.renderer.render(this.scene, this.main.camera);
 
       this.stats.end();
     });

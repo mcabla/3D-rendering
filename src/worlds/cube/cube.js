@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export function createCube() {
     const geometry = new THREE.BoxBufferGeometry(2, 2, 2);
     

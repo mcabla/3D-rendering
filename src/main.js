@@ -1,20 +1,44 @@
+import * as THREE from 'three';
+//import Stats from 'three/addons/jsm/libs/stats.module.js';
+
 import Loop from './loop.js';
 import Stats from './stats.js'
 import Resizer from './resizer.js';
+import { default as BoidsWorld } from './worlds/boids/world.js';
 import { default as SpinningCubeWorld } from './worlds/cube/world.js';
 import { default as NaturalWorld } from './worlds/natural/world.js';
+import { default as TerrainWorld } from './worlds/terrain/world.js';
 
 export default class Main {
   constructor(container) {
     this.container = container;
-    this.camera = this.createCamera();
     this.renderer = this.createRenderer();
     this.scene = this.createScene();
     this.stats = this.createStats();
     this.loop = new Loop(this);
     container.append(this.renderer.domElement);
 
-    const world = new SpinningCubeWorld(this);
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+    let world;
+    switch (params.world) {
+      case 'boids':
+        world = new BoidsWorld(this);
+        break;
+      case 'cube':
+        world = new SpinningCubeWorld(this);
+        break;
+      case 'terrain':
+        world = new TerrainWorld(this);
+        break;
+      case 'natural':
+      default:
+        world = new NaturalWorld(this);
+        break;
+    }
+
+    this.camera = world.camera;
 
     const resizer = new Resizer(container, this.camera, this.renderer);
   }
@@ -30,17 +54,6 @@ export default class Main {
 
   stop() {
     this.loop.stop();
-  }
-
-  createCamera() {
-    const camera = new THREE.PerspectiveCamera(
-      35, // fov = Field Of View
-      1, // dummy value for aspect ratio
-      0.1, // near clipping plane
-      100, // far clipping plane
-    );
-    camera.position.set(0, 0, 10);
-    return camera;
   }
 
   createRenderer() {
