@@ -5,7 +5,7 @@ export default class Resizer {
 
     window.addEventListener('resize', () => {
       // set the size again if a resize occurs
-      _setSize(container, camera, renderer);
+      this._setSize(container, camera, renderer);
       // perform any custom actions
       this.onResize();
     });
