@@ -6,9 +6,7 @@ export default class World {
     this.scene = main.scene;
     this.loop = main.loop;
     this.camera = createCamera();
-
     this.scene.background = new THREE.Color('skyblue');
-
   }
 }
 

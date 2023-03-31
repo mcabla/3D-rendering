@@ -11,7 +11,7 @@ export default class World {
     this.camera = createCamera();
 
 
-    this.scene.background = new THREE.Color('skyblue');
+    this.scene.background = new THREE.Color(0x151519);
 
 
     this.cube = createCube();

@@ -13,7 +13,7 @@ export function createCube() {
     cube.rotation.set(-0.5, -0.1, 0.8);
 
     const radiansPerSecond = THREE.MathUtils.degToRad(30);
-
+    
     // this method will be called once per frame
     cube.tick = (delta) => {
         // increase the cube's rotation each frame
