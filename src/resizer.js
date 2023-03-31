@@ -1,4 +1,7 @@
 export default class Resizer {
+  width = 0;
+  height = 0;
+
   constructor(container, camera, renderer) {
     // set initial size
     this._setSize(container, camera, renderer);
@@ -14,6 +17,8 @@ export default class Resizer {
   onResize() { }
 
   _setSize(container, camera, renderer) {
+    this.width = container.clientWidth;
+    this.height = container.clientHeight;
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
 

@@ -6,6 +6,7 @@ import Stats from './stats.js'
 import Resizer from './resizer.js';
 import { default as BoidsWorld } from './worlds/boids/world.js';
 import { default as SpinningCubeWorld } from './worlds/cube/world.js';
+import { default as FractalsWorld } from './worlds/fractals/world.js';
 import { default as NaturalWorld } from './worlds/natural/world.js';
 import { default as TerrainWorld } from './worlds/terrain/world.js';
 
@@ -29,6 +30,9 @@ export default class Main {
       case 'cube':
         world = new SpinningCubeWorld(this);
         break;
+      case 'fractals':
+        world = new FractalsWorld(this);
+        break;
       case 'terrain':
         world = new TerrainWorld(this);
         break;
@@ -40,7 +44,7 @@ export default class Main {
 
     this.camera = world.camera;
 
-    const resizer = new Resizer(container, this.camera, this.renderer);
+    this.resizer = new Resizer(container, this.camera, this.renderer);
   }
 
   render() {
@@ -58,7 +62,8 @@ export default class Main {
 
   createRenderer() {
     const renderer = new THREE.WebGLRenderer({
-      antialias: true
+      antialias: true,
+      precision:'highp'
     });
     renderer.useLegacyLights = true;
     return renderer;
