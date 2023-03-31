@@ -49,7 +49,7 @@ export default class Main {
 
   render() {
     // draw a single frame
-    this.renderer.render(scene, camera);
+    this.renderer.render(this.scene, this.camera);
   }
 
   start() {
@@ -63,7 +63,7 @@ export default class Main {
   createRenderer() {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
-      precision:'highp'
+      precision: 'highp'
     });
     renderer.useLegacyLights = true;
     return renderer;

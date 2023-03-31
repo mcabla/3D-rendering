@@ -1,5 +1,24 @@
 import Main from './src/main.js';
 
+
+//Make navbar dynamic
+const links = document.querySelectorAll('.nav-link');
+let activeLink = links[0];
+
+links.forEach(link => {
+  link.addEventListener('click', () => {
+    activeLink.classList.remove('active');
+    link.classList.add('active');
+    activeLink = link;
+    console.log(link.dataset.queryString);
+    const queryString = link.dataset.queryString;
+    const url = new URL(window.location.href);
+    url.searchParams.set('world', queryString);
+    window.history.replaceState({}, '', url);
+  });
+});
+
+
 function main() {
 
   // Get a reference to the container element
@@ -13,3 +32,4 @@ function main() {
 }
 
 main();
+

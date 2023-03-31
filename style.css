@@ -1,3 +1,28 @@
 body {
+  background-color: rgba(30, 30, 30, 1.00);
   margin: 0;
+}
+
+#canvasParent {
+  aspect-ratio: 5 / 4;
+}
+/* 
+canvas {
+  border-radius: 10px;
+  border: 1px solid #333344;
+} */
+
+
+/* Stop selecting things like buttons or SVG buttons! */
+.disable-select {
+  user-select: none;
+  /* supported by Chrome and Opera */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
 }
