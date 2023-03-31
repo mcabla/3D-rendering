@@ -10,10 +10,8 @@ links.forEach(link => {
     activeLink.classList.remove('active');
     link.classList.add('active');
     activeLink = link;
-    console.log(link.dataset.queryString);
-    const queryString = link.dataset.queryString;
     const url = new URL(window.location.href);
-    url.searchParams.set('world', queryString);
+    url.searchParams.set('world', link.dataset.queryString);
     window.history.replaceState({}, '', url);
   });
 });
