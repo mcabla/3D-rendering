@@ -12,6 +12,7 @@ export function createTree() {
 }
 
 export default class Tree {
+    //https://github.com/jlopez90/fractal-tree
     constructor(startX = 0, startY = 0, length = 10, growPercentatge, material) {
         this.geometry = [];
 
