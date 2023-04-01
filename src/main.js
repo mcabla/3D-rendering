@@ -11,19 +11,15 @@ import { default as NaturalWorld } from './worlds/natural/world.js';
 import { default as TerrainWorld } from './worlds/terrain/world.js';
 
 export default class Main {
-  constructor(container) {
+  constructor(container, worldName = 'natural') {
     this.container = container;
     this.renderer = this.createRenderer();
     this.scene = this.createScene();
     this.stats = this.createStats();
     this.loop = new Loop(this);
     container.append(this.renderer.domElement);
-
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop),
-    });
     let world;
-    switch (params.world) {
+    switch (worldName) {
       case 'boids':
         world = new BoidsWorld(this);
         break;
