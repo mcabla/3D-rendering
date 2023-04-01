@@ -18,6 +18,8 @@ export default class Main {
     this.stats = this.createStats();
     this.loop = new Loop(this);
     container.append(this.renderer.domElement);
+    this.resizer = new Resizer(container, this.renderer);
+
     let world;
     switch (worldName) {
       case 'boids':
@@ -40,7 +42,7 @@ export default class Main {
 
     this.camera = world.camera;
 
-    this.resizer = new Resizer(container, this.camera, this.renderer);
+    this.resizer.setCamera(this.camera);
   }
 
   render() {

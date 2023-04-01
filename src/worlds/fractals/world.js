@@ -13,6 +13,11 @@ export default class World {
       aspect: {type: 'float', value: main.container.clientWidth / main.container.clientHeight}
     };
 
+    main.resizer.addEventListener('resize', (event) => {
+      uniforms.res.value = new THREE.Vector2(event.detail.width, event.detail.height);
+      uniforms.aspect.value = event.detail.aspect;
+    });
+
     let geometry = new THREE.PlaneBufferGeometry(2, 2);
     let material = new THREE.ShaderMaterial({
       fragmentShader: fragmentShader(),

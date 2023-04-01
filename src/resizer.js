@@ -1,28 +1,52 @@
-export default class Resizer {
+export default class Resizer extends EventTarget {
   width = 0;
   height = 0;
+  _camera = undefined;
+  _container = undefined;
+  _renderer = undefined;
 
-  constructor(container, camera, renderer) {
+  constructor(container, renderer) {
+    super();
+    this._container = container;
+    this._renderer = renderer;
     // set initial size
-    this._setSize(container, camera, renderer);
+    this._setSize(this._container, this._camera, this._renderer);
 
     window.addEventListener('resize', () => {
-      // set the size again if a resize occurs
-      this._setSize(container, camera, renderer);
-      // perform any custom actions
       this.onResize();
     });
   }
 
-  onResize() { }
+  setCamera(camera) {
+    this._camera = camera;
+    this.onResize();
+  }
+
+  onResize() {
+    // set the size if a resize occurs
+    this._setSize(this._container, this._camera, this._renderer);
+
+    this.dispatchEvent(new CustomEvent('resize',  { detail: {
+        height: this.height,
+        width: this.width,
+        aspect: this.width / this.height
+      }}));
+  }
 
   _setSize(container, camera, renderer) {
-    this.width = container.clientWidth;
-    this.height = container.clientHeight;
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
+    if (container) {
+      this.width = container.clientWidth;
+      this.height = container.clientHeight;
+    }
 
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    if (camera) {
+      camera.aspect = this.width / this.height;
+      camera.updateProjectionMatrix();
+    }
+
+    if (renderer) {
+      renderer.setSize(this.width, this.height);
+      renderer.setPixelRatio(window.devicePixelRatio);
+    }
   };
 }
