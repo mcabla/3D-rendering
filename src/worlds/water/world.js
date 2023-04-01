@@ -114,7 +114,6 @@ export default class World {
   updateSun() {
     const phi = THREE.MathUtils.degToRad( 90 - this.parameters.elevation );
     const theta = THREE.MathUtils.degToRad( this.parameters.azimuth );
-    console.log(this)
 
     this.sun.setFromSphericalCoords( 1, phi, theta );
 
