@@ -5,7 +5,7 @@ import Loop from './loop.js';
 import Stats from './stats.js'
 import Resizer from './resizer.js';
 export default class Main {
-  constructor(container, worldName = 'natural') {
+  constructor(container, worldName) {
     this.container = container;
     this.renderer = this.createRenderer();
     this.scene = this.createScene();
@@ -14,21 +14,16 @@ export default class Main {
     container.append(this.renderer.domElement);
     this.resizer = new Resizer(container, this.renderer);
 
-    const validWorlds = ['natural', 'boids', 'cube', 'fractals', 'terrain', 'water'];
-    const defaultWorld = validWorlds[0];
 
-    let actualWorldName;
-    if (validWorlds.includes(worldName)) {
-      actualWorldName = worldName;
-    } else {
-      actualWorldName = defaultWorld;
-    }
 
-    import(`./worlds/${actualWorldName}/world.js`).then(module => {
+    import(`./worlds/${worldName}/world.js`).then(module => {
       const world = new module.default(this);
       this.camera = world.camera;
       this.resizer.setCamera(this.camera);
       this.start();
+    }).catch(error => {
+      console.log(error);
+      alert('World could not be loaded.');
     });
   }
 

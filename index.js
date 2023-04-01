@@ -64,8 +64,16 @@ function main() {
 }
 
 function startMain() {
+  let worldName = params.get('world');
+
+  const validWorlds = Array.from(links).map(link => link.dataset.queryString);
+  const defaultWorld = validWorlds[0];
+
+  if (!validWorlds.includes(worldName)) {
+    worldName = defaultWorld;
+  }
   // create our main scene handler.
-  mainObj = new Main(container, params.get('world'));
+  mainObj = new Main(container, worldName);
 }
 
 main();
