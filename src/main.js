@@ -9,6 +9,7 @@ import { default as SpinningCubeWorld } from './worlds/cube/world.js';
 import { default as FractalsWorld } from './worlds/fractals/world.js';
 import { default as NaturalWorld } from './worlds/natural/world.js';
 import { default as TerrainWorld } from './worlds/terrain/world.js';
+import { default as WaterWorld } from './worlds/water/world.js';
 
 export default class Main {
   constructor(container, worldName = 'natural') {
@@ -33,6 +34,9 @@ export default class Main {
         break;
       case 'terrain':
         world = new TerrainWorld(this);
+        break;
+      case 'water':
+        world = new WaterWorld(this);
         break;
       case 'natural':
       default:
@@ -64,6 +68,7 @@ export default class Main {
       precision: 'highp'
     });
     renderer.useLegacyLights = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
     return renderer;
   }
 
