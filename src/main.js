@@ -90,8 +90,3 @@ export default class Main {
   }
 
 }
-
-
-window.addEventListener('popstate', () => {
-  location.reload(true);
-});

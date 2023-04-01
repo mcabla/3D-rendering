@@ -21,6 +21,7 @@ links.forEach(link => {
     const url = new URL(window.location.href);
     url.searchParams.set('world', link.dataset.queryString);
     window.history.replaceState({}, '', url);
+    main();
   });
 });
 
@@ -39,4 +40,3 @@ function main() {
 }
 
 main();
-
