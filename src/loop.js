@@ -6,7 +6,6 @@ export default class Loop {
   constructor(main) {
     this.main = main;
     this.stats = main.stats;
-    this.scene = main.scene;
     this.renderer = main.renderer;
     this.updatables = [];
   }
@@ -19,7 +18,7 @@ export default class Loop {
       this.tick();
 
       // render a frame
-      this.renderer.render(this.scene, this.main.camera);
+      this.main.render();
 
       this.stats.end();
     });

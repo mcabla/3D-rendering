@@ -4,13 +4,6 @@ import * as THREE from 'three';
 import Loop from './loop.js';
 import Stats from './stats.js'
 import Resizer from './resizer.js';
-import { default as BoidsWorld } from './worlds/boids/world.js';
-import { default as SpinningCubeWorld } from './worlds/cube/world.js';
-import { default as FractalsWorld } from './worlds/fractals/world.js';
-import { default as NaturalWorld } from './worlds/natural/world.js';
-import { default as TerrainWorld } from './worlds/terrain/world.js';
-import { default as WaterWorld } from './worlds/water/world.js';
-
 export default class Main {
   constructor(container, worldName = 'natural') {
     this.container = container;
@@ -21,32 +14,22 @@ export default class Main {
     container.append(this.renderer.domElement);
     this.resizer = new Resizer(container, this.renderer);
 
-    let world;
-    switch (worldName) {
-      case 'boids':
-        world = new BoidsWorld(this);
-        break;
-      case 'cube':
-        world = new SpinningCubeWorld(this);
-        break;
-      case 'fractals':
-        world = new FractalsWorld(this);
-        break;
-      case 'terrain':
-        world = new TerrainWorld(this);
-        break;
-      case 'water':
-        world = new WaterWorld(this);
-        break;
-      case 'natural':
-      default:
-        world = new NaturalWorld(this);
-        break;
+    const validWorlds = ['natural', 'boids', 'cube', 'fractals', 'terrain', 'water'];
+    const defaultWorld = validWorlds[0];
+
+    let actualWorldName;
+    if (validWorlds.includes(worldName)) {
+      actualWorldName = worldName;
+    } else {
+      actualWorldName = defaultWorld;
     }
 
-    this.camera = world.camera;
-
-    this.resizer.setCamera(this.camera);
+    import(`./worlds/${actualWorldName}/world.js`).then(module => {
+      const world = new module.default(this);
+      this.camera = world.camera;
+      this.resizer.setCamera(this.camera);
+      this.start();
+    });
   }
 
   render() {
@@ -73,14 +56,7 @@ export default class Main {
   }
 
   createScene() {
-    const scene = new THREE.Scene();
-    return scene;
-  }
-
-  createLights() {
-    const light = new THREE.DirectionalLight('white', 8);
-    light.position.set(10, 10, 10);
-    return light;
+    return new THREE.Scene();
   }
 
   createStats() {

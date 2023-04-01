@@ -64,12 +64,8 @@ function main() {
 }
 
 function startMain() {
-  console.log(params.get('world'))
   // create our main scene handler.
   mainObj = new Main(container, params.get('world'));
-
-  // start the animation loop
-  mainObj.start();
 }
 
 main();
