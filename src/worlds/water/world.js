@@ -75,7 +75,7 @@ export default class World {
     water.rotation.x = - Math.PI / 2;
     water.tick = (delta) => {
       // increase the cube's rotation each frame
-      water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+      water.material.uniforms[ 'time' ].value += 0.5 / 60.0;
     };
     return water;
   }

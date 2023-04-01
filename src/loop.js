@@ -38,7 +38,9 @@ export default class Loop {
     // );
 
     for (const object of this.updatables) {
-      object.tick(delta);
+      if (object.tick) {
+        object.tick(delta);
+      }
     }
   }
 }
