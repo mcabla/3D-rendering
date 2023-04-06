@@ -20,8 +20,8 @@ export class BoidManager {
     }
 
     tick(delta) {
-        // let center = this.calculateCentroid();
-        let center = this.boids[0].pos;
+        // let center = this.calculateCentroid();//This makes it so the boids want to go towards the center of the swarm
+        let center = this.boids[0].pos; //This implements a "leader" boid that everyone follow
         for (let i = 0; i < this.amount; i++)
             this.boids[i].update(this.boids, center, i, delta);
     }
