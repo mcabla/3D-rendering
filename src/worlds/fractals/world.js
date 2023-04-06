@@ -5,19 +5,22 @@ export default class World {
     this.main = main;
     this.scene = main.scene;
     this.loop = main.loop;
+    this.container = main.container;
     this.camera = createCamera();
 
-    this.scene.background = new THREE.Color('skyblue');
-
-
     let uniforms = { //GLSL types only
-      res: {type: 'vec2', value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
-      aspect: {type: 'float', value: window.innerWidth / window.innerHeight}
+      res: {type: 'vec2', value: new THREE.Vector2(main.container.clientWidth, main.container.clientHeight)},
+      aspect: {type: 'float', value: main.container.clientWidth / main.container.clientHeight}
     };
+
+    main.resizer.addEventListener('resize', (event) => {
+      uniforms.res.value = new THREE.Vector2(event.detail.width, event.detail.height);
+      uniforms.aspect.value = event.detail.aspect;
+    });
 
     let geometry = new THREE.PlaneBufferGeometry(2, 2);
     let material = new THREE.ShaderMaterial({
-      fragmentShader: fragmentShader(), // can also just be a string
+      fragmentShader: fragmentShader(),
       uniforms: uniforms
     });
     let mesh = new THREE.Mesh(geometry, material);
@@ -28,11 +31,11 @@ export default class World {
 }
 
 function createCamera() {
-  const camera = new THREE.OrthographicCamera( -1, 1, 1, -1, -1, 1);
-  return camera;
+  return new THREE.OrthographicCamera( -1, 1, 1, -1, -1, 1);
 }
 
 function fragmentShader(){
+  //https://medium.com/@SereneBiologist/rendering-escape-fractals-in-three-js-68c96b385a49
   return /*glsl*/`
     precision highp float;
     uniform vec2 res;

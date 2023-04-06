@@ -4,47 +4,27 @@ import * as THREE from 'three';
 import Loop from './loop.js';
 import Stats from './stats.js'
 import Resizer from './resizer.js';
-import { default as BoidsWorld } from './worlds/boids/world.js';
-import { default as SpinningCubeWorld } from './worlds/cube/world.js';
-import { default as FractalsWorld } from './worlds/fractals/world.js';
-import { default as NaturalWorld } from './worlds/natural/world.js';
-import { default as TerrainWorld } from './worlds/terrain/world.js';
-
 export default class Main {
-  constructor(container) {
+  constructor(container, worldName) {
     this.container = container;
     this.renderer = this.createRenderer();
     this.scene = this.createScene();
     this.stats = this.createStats();
     this.loop = new Loop(this);
     container.append(this.renderer.domElement);
+    this.resizer = new Resizer(container, this.renderer);
 
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop),
+
+
+    import(`./worlds/${worldName}/world.js`).then(module => {
+      const world = new module.default(this);
+      this.camera = world.camera;
+      this.resizer.setCamera(this.camera);
+      this.start();
+    }).catch(error => {
+      console.log(error);
+      alert('World could not be loaded.');
     });
-    let world;
-    switch (params.world) {
-      case 'boids':
-        world = new BoidsWorld(this);
-        break;
-      case 'cube':
-        world = new SpinningCubeWorld(this);
-        break;
-      case 'fractals':
-        world = new FractalsWorld(this);
-        break;
-      case 'terrain':
-        world = new TerrainWorld(this);
-        break;
-      case 'natural':
-      default:
-        world = new NaturalWorld(this);
-        break;
-    }
-
-    this.camera = world.camera;
-
-    this.resizer = new Resizer(container, this.camera, this.renderer);
   }
 
   render() {
@@ -66,18 +46,12 @@ export default class Main {
       precision: 'highp'
     });
     renderer.useLegacyLights = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
     return renderer;
   }
 
   createScene() {
-    const scene = new THREE.Scene();
-    return scene;
-  }
-
-  createLights() {
-    const light = new THREE.DirectionalLight('white', 8);
-    light.position.set(10, 10, 10);
-    return light;
+    return new THREE.Scene();
   }
 
   createStats() {
@@ -87,8 +61,3 @@ export default class Main {
   }
 
 }
-
-
-window.addEventListener('popstate', () => {
-  location.reload(true);
-});

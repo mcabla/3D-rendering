@@ -30,9 +30,9 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-0">
+  <nav id="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark mb-0">
     <div class="container-fluid">
-      <a class="navbar-brand" href="">Natural scene generation</a>
+      <div class="navbar-brand">Natural scene generation</div>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
         aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -40,11 +40,13 @@
       <!-- Don't forget to include the ID! -->
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link active" href="#" data-query-string="cube">Example 1</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-query-string="natural">Example 2</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-query-string="natural">Natural</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-query-string="cube">Cube</a></li>
           <li class="nav-item"><a class="nav-link" href="#" data-query-string="boids">Boids</a></li>
-          <li class="nav-item"><a class="nav-link" href="#" data-query-string="terrain">Terrain generation</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-query-string="terrain">Terrain</a></li>
           <li class="nav-item"><a class="nav-link" href="#" data-query-string="fractals">Fractals</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-query-string="tree">Trees</a></li>
+          <li class="nav-item"><a class="nav-link" href="#" data-query-string="water">Water</a></li>
         </ul>
       </div>
     </div>
@@ -54,7 +56,7 @@
   <a href="/_examples/example02/example.html">Example 2 (UGent)</a> /
   <a href="/_examples/example03/example.html">Example 3 (Soda)</a> -->
 
-  <div id="sceneContainer" style="position: absolute; width: 100%; height: 100%;">
+  <div id="sceneContainer" style="position: absolute; width: 100%;">
     <!-- Our <canvas> will be inserted here -->
   </div>
 
