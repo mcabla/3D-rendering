@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export function createCube(cubeSize) {
+export function createMeshCube(cubeSize) {
     const geometry = new THREE.BoxBufferGeometry(cubeSize, cubeSize, cubeSize);
     const wireframe = new THREE.EdgesGeometry(geometry);
     const line = new THREE.LineSegments(wireframe);

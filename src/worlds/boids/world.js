@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 
-import { createCube } from './meshCube.js';
+import { createMeshCube } from './meshCube.js';
 import { createLights } from './lights.js';
 import { Boid } from './boid.js';
+import { BoidManager } from './boidManager.js';
 
 export default class World {
   constructor(main) {
@@ -13,25 +14,17 @@ export default class World {
     this.scene.background = new THREE.Color(0x151519);
 
     //Custom vars
-    this.cubeSize = 4;
-    this.boidSize = 0.1;
-    this.constantVel = 1;
-
-    this.cube = createCube(4);
+    let cubeSize = 4;
+    this.cube = createMeshCube(cubeSize);
     this.light = createLights();
-
-
-    // this.loop.updatables.push(this.cube);
-
-
     this.scene.add(this.cube, this.light);
 
-    //Add boids
-    for (let i = 0; i < 100; i++) {
-      let boid = new Boid(this.boidSize, this.cubeSize, this.constantVel, this.camera);
-      this.scene.add(boid.createBoid());
-      this.loop.updatables.push(boid);
-    }
+
+    let boidSize = 0.1;
+    let constantVel = 1;
+    let amount = 100;
+    this.boidManager = new BoidManager(this.camera, this.scene, amount, boidSize, cubeSize, constantVel)
+    this.loop.updatables.push(this.boidManager);
 
   }
 }

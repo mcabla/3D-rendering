@@ -21,19 +21,47 @@ export class Boid {
     createBoid() {
         return this.mesh;
     }
-    tick(delta) {
+    update(boids, center, boidid, delta) {
         //Push away from walls
-        let f = Math.min(0, this.cubeSize / 2 - this.pos.x);
-        f += Math.max(0, -this.pos.x - this.cubeSize / 2);
-        this.vel.x += f;
+        let avoidWallsForce = 0.1;
+        let push = new THREE.Vector3();
+        push.x = Math.min(0, this.cubeSize / 2 - this.pos.x) + Math.max(0, -this.pos.x - this.cubeSize / 2);
+        push.y = Math.min(0, this.cubeSize / 2 - this.pos.y) + Math.max(0, -this.pos.y - this.cubeSize / 2);
+        push.z = Math.min(0, this.cubeSize / 2 - this.pos.z) + Math.max(0, -this.pos.z - this.cubeSize / 2);
+        this.vel.add(push.multiplyScalar(avoidWallsForce));
 
-        f = Math.min(0, this.cubeSize / 2 - this.pos.y);
-        f += Math.max(0, -this.pos.y - this.cubeSize / 2);
-        this.vel.y += f;
 
-        f = Math.min(0, this.cubeSize / 2 - this.pos.z);
-        f += Math.max(0, -this.pos.z - this.cubeSize / 2);
-        this.vel.z += f;
+        //Push away from other boids that are too close
+        //! Move hyperparameters
+        let avoidForce = 0.01; //How hard are they pushed away from each other
+        let minDistance = 1; //How close do they have to be before they are pushed
+        //Check if you are not the leader boid
+        if (boidid !== 0)
+            for (let i = 0; i < boids.length; i++) {
+                if (i !== boidid) {
+                    //
+                    // console.log("Push away from " + i);
+                    let dist = this.pos.distanceTo(boids[i].pos);
+                    if (dist < minDistance) {
+                        push.x = this.pos.x - boids[i].pos.x;
+                        push.y = this.pos.y - boids[i].pos.y;
+                        push.z = this.pos.z - boids[i].pos.z;
+                        push.normalize().multiplyScalar(avoidForce).divideScalar(dist + 0.00001);
+                        // console.log(dist); 
+                        // console.log(push);
+                        this.vel.add(push);
+                    }
+                }
+            }
+        //Pull towards the center of the swarm
+        //!Move hyperparam
+        let attractForce = 0.2; //How hard are they pulled to the center of the swarm
+        push.x = center.x - this.pos.x;
+        push.y = center.y - this.pos.y;
+        push.z = center.z - this.pos.z;
+        push.normalize();
+        this.vel.add(push.multiplyScalar(attractForce));
+
 
         // Set speed to constant value
         this.vel.normalize().multiplyScalar(this.constantVel);
