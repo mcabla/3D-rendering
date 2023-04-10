@@ -2,9 +2,7 @@ import * as THREE from 'three';
 
 import { createMeshCube } from './meshCube.js';
 import { createLights } from './lights.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
-
 import { ChunkManager } from './chunkManager.js';
 
 //Inspiration: 
@@ -25,14 +23,7 @@ export default class World {
     this.scene.add(this.cube, this.light);
     this.loop.updatables.push(chunkManager);
 
-    //Camera controls orbit style
-    // const controls = new OrbitControls(this.camera, this.main.renderer.domElement);
-    // controls.minDistance = 2;
-    // controls.maxDistance = 100;
-    // controls.maxPolarAngle = Math.PI / 2;
-    // controls.target = new THREE.Vector3(0, 0, 0);
-    // controls.controlsEnabled = true;
-    // controls.update();
+    
 
     //Controls creative mode flying: 
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);

@@ -9,17 +9,21 @@ const baseSegments = 20;
 
 
 export class Chunk {
-    constructor(chunkSize, x, y, meshMode = true) {
+    constructor(camera, chunkSize, x, y, meshMode = true) {
+        this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
 
-        let geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
-        // this.materialMesh = new THREE.MeshPhongMaterial({ color: 0xffffff, });
+        const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
 
+        // this.material = new THREE.MeshStandardMaterial({color: 0x001100});//slow
+        // this.materialMesh = new THREE.MeshPhongMaterial({ color: 0xffffff, });//fast
+        this.material = new THREE.MeshLambertMaterial({ color: 0x001100 });//fastest
 
-        let wireframe = new THREE.WireframeGeometry(geometry);
-        this.obj = new THREE.LineSegments(wireframe);
-        // this.obj = new THREE.Mesh(geometry, this.materialMesh);
+        this.obj = new THREE.Mesh(geometry, this.material);
+        this.obj.position.set(x, y, 0);
+        this.obj.rotateX(-Math.PI / 2);
+        this.obj.material.depthTest = true;
         this.level = 2;
         this.updateLOD();
     }
@@ -41,10 +45,13 @@ export class Chunk {
 
     //Generate the terrain for this chunk again using the new LOD
     updateLOD() {
+
         let level = this.level;
         let segments = baseSegments * level
+
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
         let perlin = new ImprovedNoise();
+
 
         let x = this.position.x;
         let y = this.position.y;
@@ -62,19 +69,28 @@ export class Chunk {
                     geometry.attributes.position.array[i] += val;
                 }
             }
+        geometry.computeVertexNormals();
+        this.obj.geometry.dispose();
+        this.obj.geometry = geometry;
+    }
 
-        const wireframe = new THREE.WireframeGeometry(geometry);
-        this.obj = new THREE.LineSegments(wireframe);
-
-
-
-        this.obj.position.set(x, y, 0);
-        this.obj.material.depthTest = false;
-        // this.obj.material.opacity = 0.25;
-        // this.obj.material.transparent = true;
-        // this.obj = new THREE.Mesh(geometry, this.materialMesh);
-        // this.obj.castShadow = true; // Enable shadow casting on the mesh
-        // this.obj.receiveShadow = true; // Enable shadow receiving on the mesh
-
+    tick(delta) {
+        let d = this.camera.position.distanceTo(this.position);
+        let lod;
+        switch (true) {
+            case d <= 2:
+                lod = 4;
+                break;
+            case d <= 3:
+                lod = 3;
+                break;
+            case d <= 4:
+                lod = 2;
+                break;
+            default:
+                lod = 1;
+        }
+        //Update the LOD and check if it was different from the old value
+        if (this.setLOD(lod)) console.log("New lod is: " + lod);
     }
 }
