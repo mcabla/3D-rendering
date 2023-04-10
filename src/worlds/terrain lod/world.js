@@ -13,7 +13,7 @@ export default class World {
     this.scene = main.scene;
     this.loop = main.loop;
     this.camera = createCamera();
-    this.scene.background = new THREE.Color(0x151519);
+    this.scene.background = new THREE.Color(0x66BBFF);
 
     //Custom vars
     let cubeSize = 5;

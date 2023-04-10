@@ -22,7 +22,7 @@ export class Chunk {
         else {
             // this.material = new THREE.MeshStandardMaterial({color: 0x001100});//slow
             // this.materialMesh = new THREE.MeshPhongMaterial({ color: 0xffffff, });//fast
-            this.material = new THREE.MeshLambertMaterial({ color: 0x001100 });//fastest
+            this.material = new THREE.MeshLambertMaterial({ color: 0x205E0E });//fastest
             this.obj = new THREE.Mesh(geometry, this.material);
             this.obj.material.depthTest = true;
         }
