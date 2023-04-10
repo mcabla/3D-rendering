@@ -2,6 +2,9 @@ import * as THREE from 'three';
 
 import { createCube } from './cube.js';
 import { createLights } from './lights.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+
 
 export default class World {
   constructor(main) {
@@ -20,6 +23,15 @@ export default class World {
     this.loop.updatables.push(this.cube);
 
     this.scene.add(this.cube, this.light);
+
+    //Orbit controls
+    const controls = new OrbitControls(this.camera, this.main.renderer.domElement);
+    controls.minDistance = 2;
+    controls.maxDistance = 100;
+    controls.maxPolarAngle = Math.PI / 2;
+    controls.target = new THREE.Vector3(0, 0, 0);
+    controls.controlsEnabled = true;
+    controls.update();
   }
 }
 
