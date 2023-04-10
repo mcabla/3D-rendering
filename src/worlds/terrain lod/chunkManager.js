@@ -31,48 +31,21 @@ export class ChunkManager {
             let d = this.camera.position.distanceTo(this.chunks[i].position);
             let lod;
             switch (true) {
-                case d <= 2:
+                case d <= 8:
                     lod = 4;
                     break;
-                case d <= 3:
+                case d <= 10:
                     lod = 3;
                     break;
-                case d <= 4:
-                    lod = 2;
-                    break;
                 default:
-                    lod = 1;
+                    lod = 2;
             }
             //Update the LOD and check if it was different from the old value
-            if (this.chunks[i].setLOD(lod)) anyChange = true;
+            if (this.chunks[i].setLOD(lod))
+                anyChange = true;
         }
-
-        //If any chunks changed LOD regen all
-        if (anyChange) {
-            this.removeAll();
-            // this.scene.add(this.light);
-            for (let i = 0; i < this.chunks.length; i++) {
-                this.scene.add(this.chunks[i].createChunk());
-            }
+        if (anyChange)
             this.printMap();
-        }
-
-    }
-
-    //!bad
-    //Remove everything from the scene
-    removeAll() {
-        let i = 0;
-        while (i < this.scene.children.length)
-            if (this.scene.children[i] instanceof THREE.LineSegments)
-                this.scene.remove(this.scene.children[i]);
-            else
-                i++;
-
-
-        // for (let i = 0; i < this.chunks.length; i++)
-        //     this.scene.remove(this.chunks[i].createChunk());
-
     }
 
     //Print the lod's of all the loaded chunks

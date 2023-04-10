@@ -9,21 +9,27 @@ const baseSegments = 20;
 
 
 export class Chunk {
-    constructor(camera, chunkSize, x, y, meshMode = true) {
+    constructor(camera, chunkSize, x, y, meshMode = false) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
 
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
 
-        // this.material = new THREE.MeshStandardMaterial({color: 0x001100});//slow
-        // this.materialMesh = new THREE.MeshPhongMaterial({ color: 0xffffff, });//fast
-        this.material = new THREE.MeshLambertMaterial({ color: 0x001100 });//fastest
-
-        this.obj = new THREE.Mesh(geometry, this.material);
+        this.meshMode = meshMode;
+        if (meshMode) {
+            let wireframe = new THREE.WireframeGeometry(geometry);
+            this.obj = new THREE.LineSegments(wireframe);
+        }
+        else {
+            // this.material = new THREE.MeshStandardMaterial({color: 0x001100});//slow
+            // this.materialMesh = new THREE.MeshPhongMaterial({ color: 0xffffff, });//fast
+            this.material = new THREE.MeshLambertMaterial({ color: 0x001100 });//fastest
+            this.obj = new THREE.Mesh(geometry, this.material);
+            this.obj.material.depthTest = true;
+        }
         this.obj.position.set(x, y, 0);
         this.obj.rotateX(-Math.PI / 2);
-        this.obj.material.depthTest = true;
         this.level = 2;
         this.updateLOD();
     }
@@ -48,10 +54,8 @@ export class Chunk {
 
         let level = this.level;
         let segments = baseSegments * level
-
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
         let perlin = new ImprovedNoise();
-
 
         let x = this.position.x;
         let y = this.position.y;
@@ -69,9 +73,14 @@ export class Chunk {
                     geometry.attributes.position.array[i] += val;
                 }
             }
-        geometry.computeVertexNormals();
         this.obj.geometry.dispose();
-        this.obj.geometry = geometry;
+        if (this.meshMode) {
+            const wireframe = new THREE.WireframeGeometry(geometry);
+            this.obj.geometry = wireframe;
+        } else {
+            geometry.computeVertexNormals();
+            this.obj.geometry = geometry;
+        }
     }
 
     tick(delta) {
