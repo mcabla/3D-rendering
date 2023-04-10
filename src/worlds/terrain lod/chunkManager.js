@@ -15,7 +15,7 @@ export class ChunkManager {
         let max = Math.ceil(viewDistance / 2)
         for (let y = min; y < max; y++) {
             for (let x = min; x < max; x++) {
-                let chunk = new Chunk(chunkSize, x, y);
+                let chunk = new Chunk(chunkSize, x * chunkSize, y * chunkSize);
                 this.scene.add(chunk.createChunk());
                 this.chunks.push(chunk);
             }
@@ -24,7 +24,7 @@ export class ChunkManager {
     }
 
     tick(delta) {
-        // let cameraZ = Math.floor(this.camera.position.z);
+        // console.log(`x: ${Math.round(this.camera.position.x)}, y: ${Math.round(this.camera.position.y)}, z: ${Math.round(this.camera.position.z)}`);
 
         let anyChange = false;
         for (let i = 0; i < this.chunks.length; i++) {
@@ -56,6 +56,7 @@ export class ChunkManager {
             }
             this.printMap();
         }
+
     }
 
     //!bad

@@ -56,8 +56,8 @@ export class Chunk {
                 // console.log(`x: ${x}, y: ${y}, i: ${i}`);
                 geometry.attributes.position.array[i] = 0;
                 for (let l = 1; l <= level; l++) {
-                    let xP = x * freqGain ** l + xL / segments * freqGain ** l
-                    let yP = -y * freqGain ** l + yL / segments * freqGain ** l
+                    let xP = x / this.chunkSize * freqGain ** l + xL / segments * freqGain ** l
+                    let yP = -y / this.chunkSize * freqGain ** l + yL / segments * freqGain ** l
                     const val = perlin.noise(xP, yP, 0) * amplitude * amplShrink ** l
                     geometry.attributes.position.array[i] += val;
                 }
@@ -68,7 +68,7 @@ export class Chunk {
 
         // this.obj = new THREE.Mesh(geometry, this.materialMesh);
 
-        this.obj.position.set(x * this.chunkSize, y * this.chunkSize, 0);
+        this.obj.position.set(x, y, 0);
         this.obj.material.depthTest = false;
         // this.obj.castShadow = true; // Enable shadow casting on the mesh
         // this.obj.receiveShadow = true; // Enable shadow receiving on the mesh
