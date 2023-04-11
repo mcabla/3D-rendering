@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { createMeshCube } from './meshCube.js';
 import { createLights } from './lights.js';
-import { Chunk } from './chunk.js';
+// import { Chunk } from './chunk.js';
+import { Chunk } from '../../utilities/chunk.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export default class World {
@@ -11,15 +12,22 @@ export default class World {
     this.loop = main.loop;
     this.camera = createCamera();
 
-
     const cubeSize = 4;
     this.cube = createMeshCube(cubeSize);
 
     this.scene.background = new THREE.Color(0x151519);
-    this.chunk = new Chunk(this.camera, cubeSize, 0, 0);
+
+
+    this.chunk = new Chunk({
+      camera: this.camera,
+      chunkSize: cubeSize,
+      x: 0,
+      y: 0,
+      meshMode: true
+    });
     this.loop.updatables.push(this.chunk);
     this.light = createLights();
-    this.scene.add(this.light, this.cube, this.chunk.createChunk());
+    this.scene.add(this.light, this.cube, this.chunk.getMesh());
 
     //Camera controls orbit style
     const controls = new OrbitControls(this.camera, this.main.renderer.domElement);
@@ -41,6 +49,7 @@ function createCamera() {
     100, // far clipping plane
   );
   camera.position.set(0, 10, 10);
+  camera.up = new THREE.Vector3(0, 0, 1);
   camera.lookAt(new THREE.Vector3());
   return camera;
 }

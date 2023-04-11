@@ -4,39 +4,46 @@ import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 const amplitude = 2.5
 const freqGain = 3;
 const amplShrink = 0.2;
-const startLOD = 2;
 const baseSegments = 20;
 
 
 export class Chunk {
-    constructor(camera, chunkSize, x, y, meshMode = false) {
+    constructor({ camera, chunkSize, x, y, meshMode = false, level = 1 }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
 
-        const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
-
+        let geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
         this.meshMode = meshMode;
         if (meshMode) {
             let wireframe = new THREE.WireframeGeometry(geometry);
             this.obj = new THREE.LineSegments(wireframe);
+            this.obj.material.opacity = 0.75;
+            this.obj.material.transparent = true;
         }
         else {
-            // this.material = new THREE.MeshStandardMaterial({color: 0x001100});//slow
-            // this.materialMesh = new THREE.MeshPhongMaterial({ color: 0xffffff, });//fast
-            this.material = new THREE.MeshLambertMaterial({ color: 0x001100 });//fastest
+            this.material = new THREE.MeshPhysicalMaterial({
+                color: 0x229E03, // Green color
+                roughness: 1, // Adjust this value to control the roughness of the grass
+                metalness: 0, // Adjust this value to control the metalness of the grass
+                emissive: 0x112211
+            });
+
+            // this.material = new THREE.MeshLambertMaterial({
+            //     color: 0x114F02, 
+            //     emissive: 0x001F00, 
+            // });
             this.obj = new THREE.Mesh(geometry, this.material);
             this.obj.material.depthTest = true;
         }
         this.obj.position.set(x, y, 0);
-        this.obj.rotateX(-Math.PI / 2);
-        this.level = 2;
+        this.level = level;
         this.updateLOD();
     }
 
 
     //Return the mesh
-    createChunk() {
+    getMesh() {
         return this.obj;
     }
 
@@ -51,7 +58,6 @@ export class Chunk {
 
     //Generate the terrain for this chunk again using the new LOD
     updateLOD() {
-
         let level = this.level;
         let segments = baseSegments * level
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
@@ -81,8 +87,10 @@ export class Chunk {
             geometry.computeVertexNormals();
             this.obj.geometry = geometry;
         }
+
     }
 
+    //*When a chunk manager is used this is not called directly
     tick(delta) {
         let d = this.camera.position.distanceTo(this.position);
         let lod;

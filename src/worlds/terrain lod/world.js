@@ -1,9 +1,7 @@
 import * as THREE from 'three';
-
-import { createMeshCube } from '../perlin lod/meshCube.js';
 import { createLights } from './lights.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
-import { ChunkManager } from './chunkManager.js';
+import { ChunkManager } from '../../utilities/chunkManager.js';
 
 //Inspiration: 
 

@@ -43,8 +43,13 @@ export class ChunkManager {
                 })
                 //*If it doesn't, create the chunk
                 if (!found) {
-                    chunkToUpdate = new Chunk(this.chunkSize, x, y);
-                    this.scene.add(chunkToUpdate.createChunk());
+                    chunkToUpdate = new Chunk({
+                        camera: this.camera,
+                        chunkSize: this.chunkSize,
+                        x: x,
+                        y: y
+                    });
+                    this.scene.add(chunkToUpdate.getMesh());
                     this.chunks.add(chunkToUpdate);
                 }
                 //*Remove it from the to delete list
@@ -67,7 +72,7 @@ export class ChunkManager {
 
         //* Delete chunks that are still on the to delete list
         chunksToDelete.forEach(chunk => {
-            this.scene.remove(chunk.createChunk());
+            this.scene.remove(chunk.getMesh());
             this.chunks.delete(chunk);
         });
     }
