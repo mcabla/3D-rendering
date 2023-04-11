@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { createMeshCube } from './meshCube.js';
+import { createMeshCube } from '../perlin lod/meshCube.js';
 import { createLights } from './lights.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
 import { ChunkManager } from './chunkManager.js';
@@ -13,17 +13,15 @@ export default class World {
     this.scene = main.scene;
     this.loop = main.loop;
     this.camera = createCamera();
-    this.scene.background = new THREE.Color(0x151519);
+    this.scene.background = new THREE.Color(0x66BBFF);
 
     //Custom vars
     let cubeSize = 5;
-    this.cube = createMeshCube(cubeSize);
     this.light = createLights();
     let chunkManager = new ChunkManager(this.camera, this.scene, 3, cubeSize);
-    this.scene.add(this.cube, this.light);
+    this.scene.add(this.light);
     this.loop.updatables.push(chunkManager);
 
-    
 
     //Controls creative mode flying: 
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);
