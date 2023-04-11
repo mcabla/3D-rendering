@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { Chunk } from './chunk.js';
 
+import { terrainMaterial } from './materials/terrainMaterial.js';
+
 export class ChunkManager {
     constructor(camera, scene, viewDistance, chunkSize) {
         this.camera = camera;
@@ -47,7 +49,9 @@ export class ChunkManager {
                         camera: this.camera,
                         chunkSize: this.chunkSize,
                         x: x,
-                        y: y
+                        y: y,
+                        wireFrame: false,
+                        material: terrainMaterial
                     });
                     this.scene.add(chunkToUpdate.getMesh());
                     this.chunks.add(chunkToUpdate);

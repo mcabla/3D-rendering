@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { createMeshCube } from './meshCube.js';
 import { createLights } from './lights.js';
-// import { Chunk } from './chunk.js';
 import { Chunk } from '../../utilities/chunk.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { grassBasic } from '../../utilities/materials/grassBasic.js';
 
 export default class World {
   constructor(main) {
@@ -23,7 +23,8 @@ export default class World {
       chunkSize: cubeSize,
       x: 0,
       y: 0,
-      meshMode: true
+      meshMode: false,
+      material: grassBasic
     });
     this.loop.updatables.push(this.chunk);
     this.light = createLights();

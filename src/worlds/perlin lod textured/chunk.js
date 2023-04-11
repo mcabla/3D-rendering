@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
-import {terrainMaterial} from "./terrainMaterial.js";
+import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js';
 
 const amplitude = 15;
 const freqGain = 3;

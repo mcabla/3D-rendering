@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+import { grassBasic } from './materials/grassBasic.js';
 
 const amplitude = 2.5
 const freqGain = 3;
@@ -8,7 +9,7 @@ const baseSegments = 20;
 
 
 export class Chunk {
-    constructor({ camera, chunkSize, x, y, meshMode = false, level = 1 }) {
+    constructor({ camera, chunkSize, x, y, meshMode = false, material = grassBasic, lod = 1 }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
@@ -22,22 +23,12 @@ export class Chunk {
             this.obj.material.transparent = true;
         }
         else {
-            this.material = new THREE.MeshPhysicalMaterial({
-                color: 0x229E03, // Green color
-                roughness: 1, // Adjust this value to control the roughness of the grass
-                metalness: 0, // Adjust this value to control the metalness of the grass
-                emissive: 0x112211
-            });
-
-            // this.material = new THREE.MeshLambertMaterial({
-            //     color: 0x114F02, 
-            //     emissive: 0x001F00, 
-            // });
+            this.material = material;
             this.obj = new THREE.Mesh(geometry, this.material);
             this.obj.material.depthTest = true;
         }
         this.obj.position.set(x, y, 0);
-        this.level = level;
+        this.lod = lod;
         this.updateLOD();
     }
 
