@@ -3,6 +3,8 @@ import * as THREE from 'three';
 import { createTree } from './tree.js';
 import { createLights } from './lights.js';
 
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 export default class World {
   constructor(main) {
     this.main = main;
@@ -24,6 +26,13 @@ export default class World {
     // this.loop.updatables.push(this.tree);
 
     this.scene.add(this.cube, this.light);
+
+    const controls = new OrbitControls( this.camera, main.renderer.domElement );
+    controls.maxPolarAngle = Math.PI * 0.495;
+    controls.target.set( 0, 1, 0 );
+    controls.minDistance = 40.0;
+    controls.maxDistance = 200.0;
+    controls.update();
   }
 }
 
