@@ -9,7 +9,7 @@ const baseSegments = 20;
 
 
 export class Chunk {
-    constructor(chunkSize, x, y, meshMode = false) {
+    constructor(chunkSize, x, y, meshMode = false, level = 1) {
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
 
@@ -20,15 +20,22 @@ export class Chunk {
             this.obj = new THREE.LineSegments(wireframe);
         }
         else {
-            // this.material = new THREE.MeshStandardMaterial({color: 0x001100});//slow
-            // this.materialMesh = new THREE.MeshPhongMaterial({ color: 0xffffff, });//fast
-            this.material = new THREE.MeshLambertMaterial({ color: 0x205E0E });//fastest
+            this.material = new THREE.MeshPhysicalMaterial({
+                color: 0x229E03, // Green color
+                roughness: 1, // Adjust this value to control the roughness of the grass
+                metalness: 0, // Adjust this value to control the metalness of the grass
+                emissive: 0x112211
+            });
+
+            // this.material = new THREE.MeshLambertMaterial({
+            //     color: 0x114F02, 
+            //     emissive: 0x001F00, 
+            // });
             this.obj = new THREE.Mesh(geometry, this.material);
             this.obj.material.depthTest = true;
         }
         this.obj.position.set(x, y, 0);
-        // this.obj.rotateX(-Math.PI / 2);
-        this.level = 2;
+        this.level = level;
         this.updateLOD();
     }
 

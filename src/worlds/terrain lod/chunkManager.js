@@ -6,57 +6,83 @@ export class ChunkManager {
         this.camera = camera;
         this.scene = scene;
         this.chunkSize = chunkSize;
-        this.chunks = [];
+        this.chunks = new Set();
         this.viewDistance = Math.floor(viewDistance);
 
         if (this.viewDistance % 2 === 0 || this.viewDistance <= 0)
             throw new Error(`Viewdistance should be strictly positive odd number not ${this.viewDistance}`);
-        let min = -Math.floor(viewDistance / 2);
-        let max = Math.ceil(viewDistance / 2)
-        for (let y = min; y < max; y++) {
-            for (let x = min; x < max; x++) {
-                let chunk = new Chunk(chunkSize, x * chunkSize, y * chunkSize);
-                this.scene.add(chunk.createChunk());
-                this.chunks.push(chunk);
-            }
 
-        }
+        this.cameraPos = new THREE.Vector3();
     }
 
     tick(delta) {
-        // console.log(`x: ${Math.round(this.camera.position.x)}, y: ${Math.round(this.camera.position.y)}, z: ${Math.round(this.camera.position.z)}`);
+        //*If camera position hasn't changed we don't need to do anything.
+        if (this.cameraPos.equals(this.camera.position))
+            return;
+        this.cameraPos.copy(this.camera.position);
 
-        let anyChange = false;
-        for (let i = 0; i < this.chunks.length; i++) {
-            let d = this.camera.position.distanceTo(this.chunks[i].position);
-            let lod;
-            switch (true) {
-                case d <= 8:
-                    lod = 4;
-                    break;
-                case d <= 10:
-                    lod = 3;
-                    break;
-                default:
-                    lod = 2;
+        //*Assume all chunks need to be deleted
+        let chunksToDelete = new Set();
+        this.chunks.forEach(chunk => chunksToDelete.add(chunk));
+
+        //*Iterate over all chunks that should be loaded at the moment
+        let minX = Math.ceil(-this.viewDistance / 2 + this.camera.position.x / this.chunkSize) * this.chunkSize;
+        let maxX = Math.ceil(this.viewDistance / 2 + this.camera.position.x / this.chunkSize) * this.chunkSize;
+        let minY = Math.ceil(-this.viewDistance / 2 + this.camera.position.y / this.chunkSize) * this.chunkSize;
+        let maxY = Math.ceil(this.viewDistance / 2 + this.camera.position.y / this.chunkSize) * this.chunkSize;
+        for (let y = minY; y < maxY; y += this.chunkSize)
+            for (let x = minX; x < maxX; x += this.chunkSize) {
+                //*Check if the chunk it already exists
+                let found = false;
+                let chunkToUpdate = null;
+                this.chunks.forEach(chunk => {
+                    if (chunk.position.x === x && chunk.position.y === y) {
+                        found = true;
+                        chunkToUpdate = chunk;
+                    }
+                })
+                //*If it doesn't, create the chunk
+                if (!found) {
+                    chunkToUpdate = new Chunk(this.chunkSize, x, y);
+                    this.scene.add(chunkToUpdate.createChunk());
+                    this.chunks.add(chunkToUpdate);
+                }
+                //*Remove it from the to delete list
+                chunksToDelete.delete(chunkToUpdate);
+                //*Update the LOD of the chunk
+                let d = this.camera.position.distanceTo(chunkToUpdate.position);
+                let lod;
+                switch (true) {
+                    case d <= 8:
+                        lod = 5;
+                        break;
+                    case d <= 15:
+                        lod = 3;
+                        break;
+                    default:
+                        lod = 2;
+                }
+                chunkToUpdate.setLOD(lod);
             }
-            //Update the LOD and check if it was different from the old value
-            if (this.chunks[i].setLOD(lod))
-                anyChange = true;
-        }
-        if (anyChange)
-            this.printMap();
+
+        //* Delete chunks that are still on the to delete list
+        chunksToDelete.forEach(chunk => {
+            this.scene.remove(chunk.createChunk());
+            this.chunks.delete(chunk);
+        });
     }
 
-    //Print the lod's of all the loaded chunks
-    printMap() {
-        let res = "";
-        for (let i = 0; i < this.chunks.length; i++) {
-            res += this.chunks[i].level + " ";
-            if ((i + 1) % this.viewDistance === 0)
-                res += "\n";
-        }
-        console.log(res);
-    }
+    // //Print the lod's of all the loaded chunks
+    // printMap() {
+    //     let i = 0;
+    //     let res = "";
+    //     this.chunks.forEach(chunk => {
+    //         res += chunk.level + " ";
+    //         if ((i + 1) % this.viewDistance === 0)
+    //             res += "\n";
+    //         i++;
+    //     });
+    //     console.log(res);
+    // }
 
 }

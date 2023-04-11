@@ -16,9 +16,9 @@ export default class World {
     this.scene.background = new THREE.Color(0x66BBFF);
 
     //Custom vars
-    let cubeSize = 5;
+    let cubeSize = 5; 
     this.light = createLights();
-    let chunkManager = new ChunkManager(this.camera, this.scene, 3, cubeSize);
+    let chunkManager = new ChunkManager(this.camera, this.scene, 7, cubeSize);
     this.scene.add(this.light);
     this.loop.updatables.push(chunkManager);
 
