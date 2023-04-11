@@ -42,12 +42,12 @@ export default class World {
     this.pmremGenerator = new THREE.PMREMGenerator( main.renderer );
 
     this.updateSun(this.parameters.elevation , this.parameters.azimuth);
-
+/*
     this.cube = this.createCube();
     this.scene.add( this.cube );
     this.loop.updatables.push(this.cube);
-
-    this.chunk = new Chunk(this.camera, 4, 0, 0);
+*/
+    this.chunk = new Chunk(this.camera, 10, 0, 0);
     this.loop.updatables.push(this.chunk);
     this.light = createLights();
 
@@ -57,8 +57,8 @@ export default class World {
 
     //Camera controls orbit style
     const controls = new OrbitControls(this.camera, this.main.renderer.domElement);
-    controls.minDistance = 2;
-    controls.maxDistance = 100;
+    controls.minDistance = 1;
+    controls.maxDistance = 1000;
     controls.maxPolarAngle = Math.PI / 2;
     controls.target = new THREE.Vector3(0, 0, 0);
     controls.controlsEnabled = true;
@@ -84,7 +84,8 @@ export default class World {
           waterColor: 0x001e0f,
           distortionScale: 0.1,
           fog: this.scene.fog !== undefined,
-          alpha: 0.9,
+          alpha: 0.5,
+          size: 0.1
         }
     );
 
@@ -97,7 +98,7 @@ export default class World {
   }
 
   createCube() {
-    const geometry = new THREE.BoxGeometry( 30, 30, 30 );
+    const geometry = new THREE.BoxGeometry( 10, 10, 10 );
     const material = new THREE.MeshStandardMaterial( { roughness: 0 } );
     const cube = new THREE.Mesh( geometry, material );
     const radiansPerSecond = THREE.MathUtils.degToRad(30);
@@ -136,6 +137,9 @@ export default class World {
     this.sky.material.uniforms[ 'sunPosition' ].value.copy( this.sun );
     this.water.material.uniforms[ 'sunDirection' ].value.copy( this.sun ).normalize();
 
+
+    this.chunk?.material.uniforms[ 'sunDirection' ].value.copy( this.sun );
+
     if ( this.renderTarget !== undefined ) {
       this.renderTarget.dispose();
     }
@@ -152,7 +156,7 @@ function createCamera() {
   const camera = new THREE.PerspectiveCamera(
     35, // fov = Field Of View
     1, // dummy value for aspect ratio
-    0.1, // near clipping plane
+    0.01, // near clipping plane
     100, // far clipping plane
   );
   camera.position.set(0, 0, 10);
