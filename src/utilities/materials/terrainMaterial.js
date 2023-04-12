@@ -37,7 +37,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         dirtNormalMap: { type: "t", value: dirtNormal },
         waterLevel: { type: "float", value: -0.2 },
         waterLevel2: { type: "float", value: 0.0 },
-        sunColor: { type: "c", value: new THREE.Color(0x00ff00) },
+        sunColor: { type: "c", value: new THREE.Color(0xffffff) },
         ambientColor: { type: "c", value: new THREE.Color(0xffffff) },
         sunDirection: { type: "v3", value: new THREE.Vector3( 0.70707, 0.70707, 0.0 ) }
     },
