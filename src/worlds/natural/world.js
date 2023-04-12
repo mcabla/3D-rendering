@@ -5,6 +5,7 @@ import { ChunkManager } from '../../utilities/terrain/chunkManager.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 import { createWater } from './water.js';
 import {BoidManager} from "../../utilities/boids/boidManager.js";
+import { Sky } from 'three/addons/objects/Sky.js';
 
 //Inspiration:
 const waterHeight = 0.0;
@@ -31,25 +32,46 @@ const boidBehavior = {
 
 
 export default class World {
+  renderTarget;
+  parameters = {
+    elevation: 2,
+    azimuth: 180
+  };
   constructor(main) {
     this.main = main;
     this.scene = main.scene;
     this.loop = main.loop;
+    this.container = main.container;
     this.camera = createCamera();
-    this.scene.background = new THREE.Color(0x66BBFF);
-
-    //Custom vars
-    let cubeSize = 5;
 
     //Add light
     this.light = createLights();
     this.scene.add(this.light);
+    this.sun = new THREE.Vector3();
 
     //Add water
     this.water = createWater(this.scene, waterHeight);
     this.scene.add(this.water);
     this.loop.updatables.push(this.water);
 
+    // Add sky
+    this.sky = new Sky();
+    this.sky.scale.setScalar( 10000 );
+    this.scene.add( this.sky );
+
+    this.skyUniforms = this.sky.material.uniforms;
+    this.skyUniforms[ 'turbidity' ].value = 10;
+    this.skyUniforms[ 'rayleigh' ].value = 2;
+    this.skyUniforms[ 'mieCoefficient' ].value = 0.005;
+    this.skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+
+    this.pmremGenerator = new THREE.PMREMGenerator( main.renderer );
+
+    this.updateSun(this.parameters.elevation , this.parameters.azimuth);
+
+
+    //Custom vars
+    let cubeSize = 5;
     //Add chunks
     let chunkManager = new ChunkManager({
       camera: this.camera,
@@ -64,7 +86,7 @@ export default class World {
     });
     this.loop.updatables.push(chunkManager);
     terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.05;
-    terrainMaterial.uniforms['waterLevel2'].value = waterHeight + 0.07;
+    terrainMaterial.uniforms['surfaceLevel'].value = waterHeight + 0.07;
 
     //Add boids
     this.boidManager = new BoidManager({
@@ -89,6 +111,26 @@ export default class World {
         controls.update(delta);
       }
     });
+
+  }
+
+
+  updateSun() {
+    const phi = THREE.MathUtils.degToRad( 90 - this.parameters.elevation );
+    const theta = THREE.MathUtils.degToRad( this.parameters.azimuth );
+
+    this.sun.setFromSphericalCoords( 1, phi, theta );
+
+    this.sky.material.uniforms[ 'sunPosition' ].value.copy( this.sun );
+    this.water.material.uniforms[ 'sunDirection' ].value.copy( this.sun ).normalize();
+
+    if ( this.renderTarget !== undefined ) {
+      this.renderTarget.dispose();
+    }
+
+    this.renderTarget = this.pmremGenerator.fromScene( this.sky );
+
+    this.scene.environment = this.renderTarget.texture;
 
   }
 
