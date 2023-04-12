@@ -6,14 +6,18 @@ const amplitude = 2.5
 const freqGain = 3;
 const amplShrink = 0.2;
 const baseSegments = 20;
+const treeThreshold = 0.7;
+const treeCount = 10;
 
 
 export class Chunk {
-    constructor({ camera, chunkSize, x, y, wireFrameOn = false, material = grassBasic, lod = 1, baseFreq = 1 }) {
+    constructor({ camera, chunkSize, x, y, wireFrameOn = false, material = grassBasic, lod = 1, baseFreq = 1, waterHeight = 0.0, trees = false }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
         this.wireFrameOn = wireFrameOn;
+        this.waterHeight = waterHeight;
+        this.trees = trees;
 
         let geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
         if (wireFrameOn) {
@@ -26,11 +30,27 @@ export class Chunk {
             this.material = material;
             this.obj = new THREE.Mesh(geometry, this.material);
             this.obj.material.depthTest = true;
+            // this.obj.frustumCulled = false;
         }
         this.obj.position.set(x, y, 0);
 
         this.lod = lod;
         this.baseFreq = baseFreq;
+
+
+        if (trees) {
+            this.treeDummy = new THREE.Object3D();
+            const sphereGeometry = new THREE.SphereGeometry(0.05, 1, 1);
+            const sphereMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
+            this.treeMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, treeCount);
+            this.treeDummy.position.z = -10;
+            this.treeDummy.updateMatrix();
+            for (let i = 0; i < treeCount; i++) {
+                this.treeMesh.setMatrixAt(i, this.treeDummy.matrix);
+            }
+            this.obj.add(this.treeMesh);
+            this.treeMesh.instanceMatrix.needsUpdate = true;
+        }
 
         this.updateLOD();
     }
@@ -57,6 +77,8 @@ export class Chunk {
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
         let perlin = new ImprovedNoise();
 
+        const treePositions = [];
+
         let x = this.position.x;
         let y = this.position.y;
         //x and y are world coords and xL and yL are coords between 0 and 1 within the chunk
@@ -73,7 +95,37 @@ export class Chunk {
                     const val = perlin.noise(xP, yP, 0) * amplitude * amplShrink ** l
                     geometry.attributes.position.array[i] += val;
                 }
+
+                // Prevent most of the water twitching.
+                const terrainHeight = geometry.attributes.position.array[i];
+                const waterOffset = Math.abs(terrainHeight - this.waterHeight);
+                if (waterOffset < 0.02) {
+                    // Move the terrain up or down by a certain amount
+                    if (terrainHeight < this.waterHeight) {
+                        geometry.attributes.position.array[i] -= 1 * Math.abs(terrainHeight) * (waterOffset < 0.1 ? 1 : 1);
+                    } else {
+                        geometry.attributes.position.array[i] += .5 * Math.abs(terrainHeight);
+                    }
+                }
+                // Add trees only when LOD is high enough and trees haven't been placed yet
+                if (this.trees && this.treeMesh && level < 3 && treePositions.length < treeCount && Math.trunc(terrainHeight*10)/10 > this.waterHeight + 0.07) {
+                    const xP = x / this.chunkSize + xL / segments * 5000;
+                    const yP = -y / this.chunkSize + yL / segments * 5000;
+                    const noiseVal = perlin.noise(xP, yP, 0);
+                    if (noiseVal > treeThreshold) {
+                        //this.treeDummy.position.x = x + (xL / segments * 5000) * this.chunkSize;
+                        // this.treeDummy.position.y = y + (yL / segments * 5000) * this.chunkSize;
+                        //this.treeDummy.position.z = terrainHeight;
+                        //this.treeDummy.updateMatrix();
+                        // this.treeMesh.setMatrixAt(treePositions.length, this.treeDummy.matrix);
+                        //treePositions.push({ x: xL, y: yL });
+                    }
+                }
             }
+
+        if (level < 3) {
+            this.treeMesh.instanceMatrix.needsUpdate = true;
+        }
 
         this.obj.geometry.dispose();
         if (this.wireFrameOn) {
@@ -91,19 +143,24 @@ export class Chunk {
         let d = this.camera.position.distanceTo(this.position);
         let lod;
         switch (true) {
-            case d <= 2:
-                lod = 4;
+            case d <= 8:
+                lod = 5;
                 break;
-            case d <= 3:
+            case d <= 15:
                 lod = 3;
                 break;
-            case d <= 4:
+            default:
                 lod = 2;
                 break;
-            default:
-                lod = 1;
         }
         //Update the LOD and check if it was different from the old value
-        if (this.setLOD(lod)) console.log("New lod is: " + lod);
+        if (this.setLOD(lod)) {
+            // console.log("New lod is: " + lod);
+        }
+
+        if (this.trees && this.treeMesh) {
+            this.treeMesh.instanceMatrix.needsUpdate = true;
+            // this.treeMesh.computeBoundingSphere();
+        }
     }
 }

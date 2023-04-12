@@ -3,13 +3,16 @@ import { Chunk } from './chunk.js';
 
 
 export class ChunkManager {
-    constructor({ camera, scene, viewDistance, chunkSize, wireFrame = false, material, baseFreq = 1 }) {
+    constructor({ camera, scene, viewDistance, chunkSize, wireFrame = false, material, baseFreq = 1, waterHeight = 0.0, trees = false }) {
         this.camera = camera;
         this.scene = scene;
         this.viewDistance = Math.floor(viewDistance);
         this.chunkSize = chunkSize;
         this.wireFrame = wireFrame;
         this.material = material;
+        this.baseFreq = baseFreq;
+        this.waterHeight = waterHeight;
+        this.trees = trees;
         this.chunks = new Set();
 
 
@@ -52,8 +55,11 @@ export class ChunkManager {
                         chunkSize: this.chunkSize,
                         x: x,
                         y: y,
-                        wireFrame: this.wireFrame,
-                        material: this.material
+                        wireFrameOn: this.wireFrame,
+                        material: this.material,
+                        baseFreq: this.baseFreq,
+                        waterHeight: this.waterHeight,
+                        trees: this.trees
                     });
                     this.scene.add(chunkToUpdate.getMesh());
                     this.chunks.add(chunkToUpdate);
@@ -61,19 +67,7 @@ export class ChunkManager {
                 //*Remove it from the to delete list
                 chunksToDelete.delete(chunkToUpdate);
                 //*Update the LOD of the chunk
-                let d = this.camera.position.distanceTo(chunkToUpdate.position);
-                let lod;
-                switch (true) {
-                    case d <= 8:
-                        lod = 5;
-                        break;
-                    case d <= 15:
-                        lod = 3;
-                        break;
-                    default:
-                        lod = 2;
-                }
-                chunkToUpdate.setLOD(lod);
+                chunkToUpdate.tick(delta);
             }
 
         //* Delete chunks that are still on the to delete list
