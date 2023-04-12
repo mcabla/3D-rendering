@@ -1,12 +1,34 @@
 import * as THREE from 'three';
 import { createLights } from './lights.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
-import { ChunkManager } from '../../utilities/chunkManager.js';
+import { ChunkManager } from '../../utilities/terrain/chunkManager.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 import { createWater } from './water.js';
+import {BoidManager} from "../../utilities/boids/boidManager.js";
 
 //Inspiration:
 const waterHeight = 0.0;
+const boidSize = 0.03
+const boidShape = new THREE.Shape()
+  .moveTo(0, 2 * boidSize)
+  .lineTo(boidSize, -boidSize)
+  .lineTo(0, 0)
+  .lineTo(-boidSize, -boidSize)
+  .lineTo(0, 2 * boidSize);
+const geometryBoid = new THREE.ShapeGeometry(boidShape);
+const materialBoid = new THREE.MeshBasicMaterial({ color: 0x000022, side: THREE.DoubleSide });
+const defaultBoidMesh = new THREE.Mesh(geometryBoid, materialBoid);
+const boidBehavior = {
+  //*Attention: If you overwrite one of the boidBehavior rules you need to overwrite all of them!
+  constantVel: 1, //How fast the boids move at all times
+  avoidWallsForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
+  gravity: 0.005, //How much the boids are affected by gravity
+  attractForce: 0.02, //How hard are they pulled to the center of the swarm
+  minDistance: 0.5, //How close do they have to be before they are considered neighbours
+  avoidForce: 0.01,//Only neighbours: How hard are they pushed away from their neighbours
+  conformDirection: 0.001 //Only neighbours: How much the boids want to match the direction/heading of their neighbours
+}
+
 
 export default class World {
   constructor(main) {
@@ -44,6 +66,17 @@ export default class World {
     terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.05;
     terrainMaterial.uniforms['waterLevel2'].value = waterHeight + 0.07;
 
+    //Add boids
+    this.boidManager = new BoidManager({
+      camera: this.camera,
+      boidMesh: defaultBoidMesh,
+      scene: this.scene,
+      amount: 100,
+      boidSize: 0.1,
+      floorHeight: 3,
+      boidBehavior: boidBehavior
+    });
+    this.loop.updatables.push(this.boidManager);
 
     //Controls creative mode flying:
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);
@@ -75,12 +108,3 @@ function createCamera() {
 
   return camera;
 }
-
-// let oldMouseX = 0;
-// let oldMouseY = 0;
-// let mouseVX = 0;
-// let mouseVY = 0;
-
-
-// Function to handle mouse movement
-

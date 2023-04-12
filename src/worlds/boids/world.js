@@ -2,8 +2,7 @@ import * as THREE from 'three';
 
 import { createMeshCube } from './meshCube.js';
 import { createLights } from './lights.js';
-import { Boid } from './boid.js';
-import { BoidManager } from './boidManager.js';
+import { BoidManager } from '../../utilities/boids/boidManager.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 
@@ -26,16 +25,8 @@ export default class World {
       camera: this.camera,
       scene: this.scene,
       amount: 100,
-      boidSize: 0.1,
-      cubeSize: cubeSize,
+      cubeSize: cubeSize
     });
-
-    // boidBehavior: {
-    //   constantVel: 1, //How fast the boids move at all times
-    //   avoidForce: 0.01,//How hard are they pushed away from each other
-    //   minDistance: 1, //How close do they have to be before they are pushed
-    //   attractForce: 0.2 //How hard are they pulled to the center of the swarm
-    // }
 
     this.loop.updatables.push(this.boidManager);
 

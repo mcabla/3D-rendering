@@ -1,12 +1,33 @@
 import * as THREE from 'three';
 
+//Provide default boid mesh
+const boidSize = 0.1
+const boidShape = new THREE.Shape()
+    .moveTo(0, 2 * boidSize)
+    .lineTo(boidSize, -boidSize)
+    .lineTo(0, 0)
+    .lineTo(-boidSize, -boidSize)
+    .lineTo(0, 2 * boidSize);
+const geometry = new THREE.ShapeGeometry(boidShape);
+const materialBoid = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+const defaultBoidMesh = new THREE.Mesh(geometry, materialBoid);
+
+/*
+//*Set either a cubeSize or a floorHeight, not both
+- When cubeSize is set the boids fly around in a cube centered around 0,0,0 and can't escape
+- When floorHeight is set the boids fly above a certain plane and have a weak attraction towards 0,0,0. 
+*/
+
 export class Boid {
     constructor({
-        boidSize,
         cubeSize,
+        floorHeight,
         camera,
+        boidMesh = defaultBoidMesh,//You can give the boids their own custom appearance
         boidBehavior = {
+            //*Attention: If you overwrite one of the boidBehavior rules you need to overwrite all of them!
             constantVel: 1, //How fast the boids move at all times
+            avoidWallsForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
             gravity: 0.005, //How much the boids are affected by gravity
             attractForce: 0.02, //How hard are they pulled to the center of the swarm
             minDistance: 1, //How close do they have to be before they are considered neighbours
@@ -14,19 +35,20 @@ export class Boid {
             conformDirection: 0.001 //Only neighbours: How much the boids want to match the direction/heading of their neighbours
         }
     }) {
+        console.log(`Cubesize: ${typeof (cubeSize)}, Floor height: ${typeof (floorHeight)}, OK: ${typeof (cubeSize) === 'undefined' && typeof (floorHeight) !== 'undefined'}`)
+        if (typeof (cubeSize) === 'undefined' && typeof (floorHeight) !== 'undefined')
+            this.floorMode = true;
+        else
+            if (typeof (cubeSize) !== 'undefined' && typeof (floorHeight) === 'undefined')
+                this.floorMode = false;
+            else
+                throw new Error('Either specify a cube for the boids to fly in OR a minimum floor');
+        this.floorHeight = floorHeight;
         this.cubeSize = cubeSize;
+
         this.camera = camera;
         this.boidBehavior = boidBehavior;
-        this.boidShape = new THREE.Shape()
-            .moveTo(0, 2 * boidSize)
-            .lineTo(boidSize, -boidSize)
-            .lineTo(0, 0)
-            .lineTo(-boidSize, -boidSize)
-            .lineTo(0, 2 * boidSize);
-
-        this.geometry = new THREE.ShapeGeometry(this.boidShape);
-        this.materialBoth = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-        this.mesh = new THREE.Mesh(this.geometry, this.materialBoth);
+        this.mesh = boidMesh.clone();//You need to clone the mesh for each boid!
         this.vel = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)
         this.pos = new THREE.Vector3();
     }
@@ -34,13 +56,21 @@ export class Boid {
         return this.mesh;
     }
     update(boids, center, boidid, delta) {
-        //*Push away from walls
-        let avoidWallsForce = 0.1;
+        //*Push away from walls or floor
         let push = new THREE.Vector3();
-        push.x = Math.min(0, this.cubeSize / 2 - this.pos.x) + Math.max(0, -this.pos.x - this.cubeSize / 2);
-        push.y = Math.min(0, this.cubeSize / 2 - this.pos.y) + Math.max(0, -this.pos.y - this.cubeSize / 2);
-        push.z = Math.min(0, this.cubeSize / 2 - this.pos.z) + Math.max(0, -this.pos.z - this.cubeSize / 2);
-        this.vel.add(push.multiplyScalar(avoidWallsForce));
+        if (this.floorMode) {
+            //In floor mode we also want to weakly pull towards the center or the boids will just keep going forever
+            //*Pull towards the center of the swarm
+            //!HACKY
+            push.x = - this.pos.x / 1000;
+            push.y = - this.pos.y / 1000;
+            push.z = Math.max(0, this.floorHeight - this.pos.z);
+        } else {
+            push.x = Math.min(0, this.cubeSize / 2 - this.pos.x) + Math.max(0, -this.pos.x - this.cubeSize / 2);
+            push.y = Math.min(0, this.cubeSize / 2 - this.pos.y) + Math.max(0, -this.pos.y - this.cubeSize / 2);
+            push.z = Math.min(0, this.cubeSize / 2 - this.pos.z) + Math.max(0, -this.pos.z - this.cubeSize / 2);
+        }
+        this.vel.add(push.multiplyScalar(this.boidBehavior.avoidWallsForce));
 
         //*Apply forces for which we need to check every other boid (O(n^2) -> expensive)
         for (let i = 0; i < boids.length; i++) {

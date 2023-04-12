@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createLights } from './lights.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
-import { ChunkManager } from '../../utilities/chunkManager.js';
+import { ChunkManager } from '../../utilities/terrain/chunkManager.js';
 import { grassBasic } from '../../utilities/materials/grassBasic.js';
 import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
@@ -35,11 +35,10 @@ export default class World {
       scene: this.scene,
       viewDistance: 7,
       chunkSize: cubeSize,
-      material: terrainTropic,
-      baseFreq: 1
+      material: terrainTropic
     });
-    this.loop.updatables.push(chunkManager);
 
+    this.loop.updatables.push(chunkManager);
 
     //Controls creative mode flying: 
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);
@@ -54,8 +53,6 @@ export default class World {
     });
 
   }
-
-
 }
 
 function createCamera() {
@@ -72,11 +69,4 @@ function createCamera() {
   return camera;
 }
 
-// let oldMouseX = 0;
-// let oldMouseY = 0;
-// let mouseVX = 0;
-// let mouseVY = 0;
-
-
-// Function to handle mouse movement
 
