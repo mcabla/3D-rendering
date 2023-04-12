@@ -25,8 +25,7 @@ export default class World {
       chunkSize: cubeSize,
       x: 0,
       y: 0,
-      wireFrameOn: false,
-      material: terrainTropic
+      wireFrameOn: true
     });
     this.loop.updatables.push(this.chunk);
     this.light = createLights();
