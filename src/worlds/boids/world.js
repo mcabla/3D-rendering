@@ -16,22 +16,33 @@ export default class World {
     this.scene.background = new THREE.Color(0x151519);
 
     //Custom vars
-    let cubeSize = 4;
+    let cubeSize = 8;
     this.cube = createMeshCube(cubeSize);
     this.light = createLights();
     this.scene.add(this.cube, this.light);
 
 
-    let boidSize = 0.1;
-    let constantVel = 1;
-    let amount = 100;
-    this.boidManager = new BoidManager(this.camera, this.scene, amount, boidSize, cubeSize, constantVel)
+    this.boidManager = new BoidManager({
+      camera: this.camera,
+      scene: this.scene,
+      amount: 100,
+      boidSize: 0.1,
+      cubeSize: cubeSize,
+    });
+
+    // boidBehavior: {
+    //   constantVel: 1, //How fast the boids move at all times
+    //   avoidForce: 0.01,//How hard are they pushed away from each other
+    //   minDistance: 1, //How close do they have to be before they are pushed
+    //   attractForce: 0.2 //How hard are they pulled to the center of the swarm
+    // }
+
     this.loop.updatables.push(this.boidManager);
 
     //Camera controls
     const controls = new OrbitControls(this.camera, this.main.renderer.domElement);
     controls.minDistance = 10;
-    controls.maxDistance = 100;
+    controls.maxDistance = 75;
     controls.maxPolarAngle = Math.PI / 2;
     controls.target = new THREE.Vector3(0, 0, 0);
     controls.update();
@@ -45,6 +56,8 @@ function createCamera() {
     0.1, // near clipping plane 
     100, // far clipping plane
   );
-  camera.position.set(0, 0, 10);
+  camera.position.set(-25, 0, 0);
+  camera.up = new THREE.Vector3(0, 0, 1);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
   return camera;
 }

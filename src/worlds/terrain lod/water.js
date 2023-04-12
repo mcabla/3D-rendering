@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { Water } from 'three/addons/objects/Water.js';
 
-export function createWater(height) {
+export function createWater(scene, height) {
     const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
     const water = new Water(
         waterGeometry,
@@ -14,7 +15,7 @@ export function createWater(height) {
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
             distortionScale: 0.1,
-            fog: this.scene.fog !== undefined,
+            fog: false,
             alpha: 0.5,
             size: 0.1
         }

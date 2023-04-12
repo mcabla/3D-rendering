@@ -9,14 +9,14 @@ const baseSegments = 20;
 
 
 export class Chunk {
-    constructor({ camera, chunkSize, x, y, wireFrame = false, material = grassBasic, lod = 1 }) {
+    constructor({ camera, chunkSize, x, y, wireFrameOn = false, material = grassBasic, lod = 1, baseFreq = 1 }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
+        this.wireFrameOn = wireFrameOn;
 
         let geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
-        this.meshMode = wireFrame;
-        if (wireFrame) {
+        if (wireFrameOn) {
             let wireframe = new THREE.WireframeGeometry(geometry);
             this.obj = new THREE.LineSegments(wireframe);
             this.obj.material.opacity = 0.75;
@@ -28,7 +28,10 @@ export class Chunk {
             this.obj.material.depthTest = true;
         }
         this.obj.position.set(x, y, 0);
+
         this.lod = lod;
+        this.baseFreq = baseFreq;
+
         this.updateLOD();
     }
 
@@ -64,15 +67,16 @@ export class Chunk {
                 //*Stop gaps by lowering chunks that are further away into the ground a bit. Hacky but it works!
                 geometry.attributes.position.array[i] = level * 0.01;
                 for (let l = 1; l <= level; l++) {
-                    let xP = x / this.chunkSize * freqGain ** l + xL / segments * freqGain ** l
-                    let yP = -y / this.chunkSize * freqGain ** l + yL / segments * freqGain ** l
+                    const freq = this.baseFreq * freqGain ** l
+                    let xP = x / this.chunkSize * freq + xL / segments * freq;
+                    let yP = -y / this.chunkSize * freq + yL / segments * freq;
                     const val = perlin.noise(xP, yP, 0) * amplitude * amplShrink ** l
                     geometry.attributes.position.array[i] += val;
                 }
             }
 
         this.obj.geometry.dispose();
-        if (this.meshMode) {
+        if (this.wireFrameOn) {
             const wireframe = new THREE.WireframeGeometry(geometry);
             this.obj.geometry = wireframe;
         } else {

@@ -7,6 +7,7 @@ import { grassBasic } from '../../utilities/materials/grassBasic.js';
 import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 
+
 export default class World {
   constructor(main) {
     this.main = main;
@@ -24,11 +25,12 @@ export default class World {
       chunkSize: cubeSize,
       x: 0,
       y: 0,
-      wireFrame: false,
+      wireFrameOn: false,
       material: terrainTropic
     });
     this.loop.updatables.push(this.chunk);
     this.light = createLights();
+
     this.scene.add(this.light, this.cube, this.chunk.getMesh());
 
     //Camera controls orbit style
