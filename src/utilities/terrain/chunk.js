@@ -118,18 +118,7 @@ export class Chunk {
                     geometry.attributes.position.array[index] += val;
                 }
 
-                // Prevent most of the water twitching.
                 let terrainHeight = geometry.attributes.position.array[index];
-                const waterOffset = Math.abs(terrainHeight - this.waterHeight);
-                if (waterOffset < 0.02) {
-                    // Move the terrain up or down by a certain amount
-                    if (terrainHeight < this.waterHeight) {
-                        geometry.attributes.position.array[index] -= 1 * Math.abs(terrainHeight) * (waterOffset < 0.1 ? 1 : 1);
-                    } else {
-                        geometry.attributes.position.array[index] += .5 * Math.abs(terrainHeight);
-                    }
-                    terrainHeight = geometry.attributes.position.array[index];
-                }
                 // Add trees only when LOD is high enough and trees haven't been placed yet
                 if (this.trees && this.treeMesh && level < 3 && treePositions.length < this.treeCount && Math.trunc(terrainHeight*10)/10 > this.waterHeight + 0.07) {
                     const xP = x / this.chunkSize + xL / segments * 5000;
