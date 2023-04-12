@@ -42,8 +42,8 @@ export const terrainTropic = new THREE.ShaderMaterial({
         dirtTexture: { type: "t", value: dirt },
         dirtNormalMap: { type: "t", value: dirtNormal },
         
-        waterLevel: { type: "float", value: -0.2 },
-        waterLevel2: { type: "float", value: 0.0 },
+        waterLevel: { type: "float", value: -0.05 },
+        rockLevel: { type: "float", value: 0.1 },
         sunColor: { type: "c", value: new THREE.Color(0xffffff) },
         ambientColor: { type: "c", value: new THREE.Color(0xaaaaaa) },
         sunDirection: { type: "v3", value: new THREE.Vector3(0.70707, 0.70707, 0.0) }
@@ -88,7 +88,7 @@ export const terrainTropic = new THREE.ShaderMaterial({
         uniform sampler2D dirtNormalMap;
         
         uniform float waterLevel;
-        uniform float waterLevel2;
+        uniform float rockLevel;
         
         uniform vec3 sunDirection;
         uniform vec3 sunColor;
@@ -114,8 +114,8 @@ export const terrainTropic = new THREE.ShaderMaterial({
             vec4 steepnessTexel = mix(stoneTexel, grassTexel, smoothstep(.5, 0.8, angle));
             vec4 steepnessNormal = mix(stoneNormal, grassNormal, smoothstep(.5, 0.8, angle));
             
-            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, waterLevel2, vPosition.z));
-            vec4 normalMap = mix(dirtNormal,steepnessNormal, smoothstep(waterLevel, waterLevel2, vPosition.z));
+            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, rockLevel, vPosition.z));
+            vec4 normalMap = mix(dirtNormal,steepnessNormal, smoothstep(waterLevel, rockLevel, vPosition.z));
             
             vec3 normal = normalize(vNormal);
             vec3 tangent = normalize(vTangent);

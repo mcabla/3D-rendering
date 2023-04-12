@@ -3,7 +3,7 @@ import { Chunk } from './chunk.js';
 
 
 export class ChunkManager {
-    constructor({ camera, scene, viewDistance, chunkSize, wireFrame = false, material}) {
+    constructor({ camera, scene, viewDistance, chunkSize, wireFrame = false, material, baseFreq = 1 }) {
         this.camera = camera;
         this.scene = scene;
         this.viewDistance = Math.floor(viewDistance);

@@ -5,6 +5,7 @@ import { ChunkManager } from '../../utilities/chunkManager.js';
 import { grassBasic } from '../../utilities/materials/grassBasic.js';
 import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
+import { createWater } from './water.js';
 
 //Inspiration: 
 
@@ -18,16 +19,25 @@ export default class World {
 
     //Custom vars
     let cubeSize = 5;
+
+    //Add light
     this.light = createLights();
-    //{ camera, scene, viewDistance, chunkSize, wireFrame = false, material}
+    this.scene.add(this.light);
+
+    //Add water
+    this.water = createWater(this.scene, 0);
+    this.scene.add(this.water);
+    this.loop.updatables.push(this.water);
+
+    //Add chunks
     let chunkManager = new ChunkManager({
       camera: this.camera,
       scene: this.scene,
       viewDistance: 7,
       chunkSize: cubeSize,
-      material: terrainTropic
+      material: terrainTropic,
+      baseFreq: 1
     });
-    this.scene.add(this.light);
     this.loop.updatables.push(chunkManager);
 
 
