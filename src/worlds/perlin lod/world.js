@@ -27,6 +27,26 @@ export default class World {
       y: 0,
       wireFrameOn: true
     });
+    this.chunk.tick = (delta) => {
+      let d = this.chunk.camera.position.distanceTo(this.chunk.position);
+      let lod;
+      switch (true) {
+        case d <= 2:
+          lod = 4;
+          break;
+        case d <= 3:
+          lod = 3;
+          break;
+        case d <= 4:
+          lod = 2;
+          break;
+        default:
+          lod = 1;
+      }
+      //Update the LOD and check if it was different from the old value
+      if (this.chunk.setLOD(lod)) console.log("New lod is: " + lod);
+    };
+
     this.loop.updatables.push(this.chunk);
     this.light = createLights();
 
