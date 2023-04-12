@@ -1,8 +1,12 @@
 import * as THREE from 'three';
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { createLights } from './lights.js';
+import { FlyControls } from 'three/addons/controls/FlyControls.js';
+import { ChunkManager } from '../../utilities/chunkManager.js';
+import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
+import { createWater } from './water.js';
 
-
+//Inspiration:
+const waterHeight = 0.0;
 
 export default class World {
   constructor(main) {
@@ -10,40 +14,52 @@ export default class World {
     this.scene = main.scene;
     this.loop = main.loop;
     this.camera = createCamera();
-    this.scene.background = new THREE.Color('skyblue');
+    this.scene.background = new THREE.Color(0x66BBFF);
 
-    // Create a font loader
-    const fontLoader = new FontLoader();
+    //Custom vars
+    let cubeSize = 5;
 
-// Load the font
-    fontLoader.load('/assets/fonts/helvetiker_regular.typeface.json', (font) => {
+    //Add light
+    this.light = createLights();
+    this.scene.add(this.light);
 
-      // Create the text geometry
-      const textGeometry = new TextGeometry('Use the navigation bar to\npreview our current tests', {
-        font: font,
-        size: .25,
-        height: 0.005,
-        curveSegments: 12,
-        bevelEnabled: false
-      });
+    //Add water
+    this.water = createWater(this.scene, waterHeight);
+    this.scene.add(this.water);
+    this.loop.updatables.push(this.water);
 
-      // Create a material for the text mesh
-      const material = new THREE.MeshBasicMaterial({
-        color: 0x0
-      });
+    //Add chunks
+    let chunkManager = new ChunkManager({
+      camera: this.camera,
+      scene: this.scene,
+      viewDistance: 7,
+      chunkSize: cubeSize,
+      material: terrainMaterial,
+      baseFreq: .5,
+      wireFrame: false,
+      waterHeight: waterHeight,
+      trees: true
+    });
+    this.loop.updatables.push(chunkManager);
+    terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.05;
+    terrainMaterial.uniforms['waterLevel2'].value = waterHeight + 0.07;
 
-      // Create the text mesh
-      const textMesh = new THREE.Mesh(textGeometry, material);
 
-      // Set the position of the text mesh
-      textMesh.position.set(-1.5, -0, 0);
-
-      // Add the text mesh to the scene
-      this.scene.add(textMesh);
-
+    //Controls creative mode flying:
+    const controls = new FlyControls(this.camera, this.main.renderer.domElement);
+    controls.movementSpeed = 4;
+    controls.domElement = this.main.renderer.domElement;
+    controls.rollSpeed = Math.PI / 6;
+    controls.dragToLook = true;
+    this.loop.updatables.push({
+      tick: function (delta) {
+        controls.update(delta);
+      }
     });
 
   }
+
+
 }
 
 function createCamera() {
@@ -53,6 +69,18 @@ function createCamera() {
     0.1, // near clipping plane
     100, // far clipping plane
   );
-  camera.position.set(0, 0, 10);
+  camera.position.set(-10, 0, 2);
+  camera.up = new THREE.Vector3(0, 0, 1);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
+
   return camera;
 }
+
+// let oldMouseX = 0;
+// let oldMouseY = 0;
+// let mouseVX = 0;
+// let mouseVY = 0;
+
+
+// Function to handle mouse movement
+
