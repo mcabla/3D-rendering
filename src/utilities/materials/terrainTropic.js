@@ -9,7 +9,9 @@ const stoneNormal = new THREE.TextureLoader().load('assets/images/rock_wall_02_n
 stoneNormal.wrapS = THREE.RepeatWrapping;
 stoneNormal.wrapT = THREE.RepeatWrapping;
 stoneNormal.repeat.set(0.05, 0.05); // scale down by a factor of 20
-const grass = new THREE.TextureLoader().load('assets/images/coast_sand_rocks_02_diff_1k.png');
+
+//*Grass
+const grass = new THREE.TextureLoader().load('assets/images/grass2-seamless2-bright.jpg');
 grass.wrapS = THREE.RepeatWrapping;
 grass.wrapT = THREE.RepeatWrapping;
 grass.repeat.set(0.05, 0.05); // scale down by a factor of 20
@@ -17,7 +19,9 @@ const grassNormal = new THREE.TextureLoader().load('assets/images/coast_sand_roc
 grassNormal.wrapS = THREE.RepeatWrapping;
 grassNormal.wrapT = THREE.RepeatWrapping;
 grassNormal.repeat.set(0.05, 0.05); // scale down by a factor of 20
-const dirt = new THREE.TextureLoader().load('assets/images/coast_sand_04_diff_1k.jpg');
+
+//*Dirt
+const dirt = new THREE.TextureLoader().load('assets/images/sand-seamless.jpg');
 dirt.wrapS = THREE.RepeatWrapping;
 dirt.wrapT = THREE.RepeatWrapping;
 dirt.repeat.set(0.05, 0.05); // scale down by a factor of 20
@@ -27,19 +31,22 @@ dirtNormal.wrapT = THREE.RepeatWrapping;
 dirtNormal.repeat.set(0.05, 0.05); // scale down by a factor of 20
 
 // Define the custom shader material
-export const terrainMaterial = new THREE.ShaderMaterial({
+export const terrainTropic = new THREE.ShaderMaterial({
     uniforms: {
         stoneTexture: { type: "t", value: stone },
         stoneNormalMap: { type: "t", value: stoneNormal },
+
         grassTexture: { type: "t", value: grass },
         grassNormalMap: { type: "t", value: grassNormal },
+        
         dirtTexture: { type: "t", value: dirt },
         dirtNormalMap: { type: "t", value: dirtNormal },
+        
         waterLevel: { type: "float", value: -0.2 },
         waterLevel2: { type: "float", value: 0.0 },
-        sunColor: { type: "c", value: new THREE.Color(0x00ff00) },
-        ambientColor: { type: "c", value: new THREE.Color(0xffffff) },
-        sunDirection: { type: "v3", value: new THREE.Vector3( 0.70707, 0.70707, 0.0 ) }
+        sunColor: { type: "c", value: new THREE.Color(0xffffff) },
+        ambientColor: { type: "c", value: new THREE.Color(0xaaaaaa) },
+        sunDirection: { type: "v3", value: new THREE.Vector3(0.70707, 0.70707, 0.0) }
     },
     vertexShader: /* glsl */`
         varying vec2 vUv;

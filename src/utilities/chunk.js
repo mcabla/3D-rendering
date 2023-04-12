@@ -9,14 +9,14 @@ const baseSegments = 20;
 
 
 export class Chunk {
-    constructor({ camera, chunkSize, x, y, meshMode = false, material = grassBasic, lod = 1 }) {
+    constructor({ camera, chunkSize, x, y, wireFrame = false, material = grassBasic, lod = 1 }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
 
         let geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
-        this.meshMode = meshMode;
-        if (meshMode) {
+        this.meshMode = wireFrame;
+        if (wireFrame) {
             let wireframe = new THREE.WireframeGeometry(geometry);
             this.obj = new THREE.LineSegments(wireframe);
             this.obj.material.opacity = 0.75;
@@ -61,8 +61,8 @@ export class Chunk {
         for (let yL = 0; yL < l; yL++)
             for (let xL = 0; xL < l; xL++) {
                 let i = 3 * yL * l + 3 * xL + 2;
-                // console.log(`x: ${x}, y: ${y}, i: ${i}`);
-                geometry.attributes.position.array[i] = 0;
+                //*Stop gaps by lowering chunks that are further away into the ground a bit. Hacky but it works!
+                geometry.attributes.position.array[i] = level * 0.01;
                 for (let l = 1; l <= level; l++) {
                     let xP = x / this.chunkSize * freqGain ** l + xL / segments * freqGain ** l
                     let yP = -y / this.chunkSize * freqGain ** l + yL / segments * freqGain ** l
@@ -70,6 +70,7 @@ export class Chunk {
                     geometry.attributes.position.array[i] += val;
                 }
             }
+
         this.obj.geometry.dispose();
         if (this.meshMode) {
             const wireframe = new THREE.WireframeGeometry(geometry);

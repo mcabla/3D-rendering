@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import { createLights } from './lights.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
 import { ChunkManager } from '../../utilities/chunkManager.js';
+import { grassBasic } from '../../utilities/materials/grassBasic.js';
+import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
+import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 
 //Inspiration: 
 
@@ -16,7 +19,14 @@ export default class World {
     //Custom vars
     let cubeSize = 5;
     this.light = createLights();
-    let chunkManager = new ChunkManager(this.camera, this.scene, 7, cubeSize);
+    //{ camera, scene, viewDistance, chunkSize, wireFrame = false, material}
+    let chunkManager = new ChunkManager({
+      camera: this.camera,
+      scene: this.scene,
+      viewDistance: 7,
+      chunkSize: cubeSize,
+      material: terrainTropic
+    });
     this.scene.add(this.light);
     this.loop.updatables.push(chunkManager);
 

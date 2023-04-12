@@ -4,6 +4,8 @@ import { createLights } from './lights.js';
 import { Chunk } from '../../utilities/chunk.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { grassBasic } from '../../utilities/materials/grassBasic.js';
+import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
+import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 
 export default class World {
   constructor(main) {
@@ -17,14 +19,13 @@ export default class World {
 
     this.scene.background = new THREE.Color(0x151519);
 
-
     this.chunk = new Chunk({
       camera: this.camera,
       chunkSize: cubeSize,
       x: 0,
       y: 0,
-      meshMode: false,
-      material: grassBasic
+      wireFrame: false,
+      material: terrainTropic
     });
     this.loop.updatables.push(this.chunk);
     this.light = createLights();
