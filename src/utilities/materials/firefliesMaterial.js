@@ -51,10 +51,8 @@ export const fireFliesMaterial = new THREE.ShaderMaterial({
               }
             }
             pointLight *= vec3(0.3, 0.3, 1.0);
-            
-        
-            
-            
+
+
             if (pointLight == vec3(0.0)) {
                 discard; // Discard the fragment if pointLight is black
             } else {

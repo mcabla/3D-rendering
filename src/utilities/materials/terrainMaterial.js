@@ -1,30 +1,17 @@
 import * as THREE from 'three';
 
+const onLoad = (texture) => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(0.05, 0.05);
+};
+
 // Define the two textures to blend
-const stone = new THREE.TextureLoader().load('assets/images/rock_wall_02_diff_1k.jpg');
-stone.wrapS = THREE.RepeatWrapping;
-stone.wrapT = THREE.RepeatWrapping;
-stone.repeat.set(0.05, 0.05); // scale down by a factor of 20
-const stoneNormal = new THREE.TextureLoader().load('assets/images/rock_wall_02_nor_gl_1k.png');
-stoneNormal.wrapS = THREE.RepeatWrapping;
-stoneNormal.wrapT = THREE.RepeatWrapping;
-stoneNormal.repeat.set(0.05, 0.05); // scale down by a factor of 20
-const grass = new THREE.TextureLoader().load('assets/images/coast_sand_rocks_02_diff_1k.png');
-grass.wrapS = THREE.RepeatWrapping;
-grass.wrapT = THREE.RepeatWrapping;
-grass.repeat.set(0.05, 0.05); // scale down by a factor of 20
-const grassNormal = new THREE.TextureLoader().load('assets/images/coast_sand_rocks_02_nor_gl_1k.png');
-grassNormal.wrapS = THREE.RepeatWrapping;
-grassNormal.wrapT = THREE.RepeatWrapping;
-grassNormal.repeat.set(0.05, 0.05); // scale down by a factor of 20
-const dirt = new THREE.TextureLoader().load('assets/images/coast_sand_04_diff_1k.jpg');
-dirt.wrapS = THREE.RepeatWrapping;
-dirt.wrapT = THREE.RepeatWrapping;
-dirt.repeat.set(0.05, 0.05); // scale down by a factor of 20
-const dirtNormal = new THREE.TextureLoader().load('assets/images/coast_sand_04_nor_gl_1k.png');
-dirtNormal.wrapS = THREE.RepeatWrapping;
-dirtNormal.wrapT = THREE.RepeatWrapping;
-dirtNormal.repeat.set(0.05, 0.05); // scale down by a factor of 20
+const stone = new THREE.TextureLoader().load('assets/images/rock_wall_02_diff_1k.jpg', onLoad);
+const stoneNormal = new THREE.TextureLoader().load('assets/images/rock_wall_02_nor_gl_1k.png', onLoad);
+const grass = new THREE.TextureLoader().load('assets/images/coast_sand_rocks_02_diff_1k.png', onLoad);
+const grassNormal = new THREE.TextureLoader().load('assets/images/coast_sand_rocks_02_nor_gl_1k.png', onLoad);
+const dirt = new THREE.TextureLoader().load('assets/images/coast_sand_04_diff_1k.jpg', onLoad);
+const dirtNormal = new THREE.TextureLoader().load('assets/images/coast_sand_04_nor_gl_1k.png', onLoad);
 
 // Define the custom shader material
 export const terrainMaterial = new THREE.ShaderMaterial({
@@ -35,6 +22,8 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         grassNormalMap: { type: "t", value: grassNormal },
         dirtTexture: { type: "t", value: dirt },
         dirtNormalMap: { type: "t", value: dirtNormal },
+        stoneAngle: { type: "float", value: 0.5 },
+        grassAngle: { type: "float", value: 1.1 },
         waterLevel: { type: "float", value: -0.2 },
         waterLevel2: { type: "float", value: 0.0 },
         sunColor: { type: "c", value: new THREE.Color(0xffffff) },
@@ -80,6 +69,8 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         uniform sampler2D grassNormalMap;
         uniform sampler2D dirtNormalMap;
         
+        uniform float stoneAngle;
+        uniform float grassAngle;
         uniform float waterLevel;
         uniform float waterLevel2;
         
@@ -104,8 +95,8 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec4 grassNormal = texture2D(grassNormalMap, vUv * 20.0);
             vec4 dirtNormal = texture2D(dirtNormalMap, vUv * 20.0);            
             
-            vec4 steepnessTexel = mix(stoneTexel, grassTexel, smoothstep(.5, 0.8, angle));
-            vec4 steepnessNormal = mix(stoneNormal, grassNormal, smoothstep(.5, 0.8, angle));
+            vec4 steepnessTexel = mix(stoneTexel, grassTexel, smoothstep(stoneAngle, grassAngle, angle));
+            vec4 steepnessNormal = mix(stoneNormal, grassNormal, smoothstep(stoneAngle, grassAngle, angle));
             
             vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, waterLevel2, vPosition.z));
             vec4 normalMap = mix(dirtNormal,steepnessNormal, smoothstep(waterLevel, waterLevel2, vPosition.z));
@@ -125,6 +116,4 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             gl_FragColor = vec4(ambient + sunLight, texel.a);
         }
         `,
-    receiveShadow: true,
-    castShadow: true,
 });
