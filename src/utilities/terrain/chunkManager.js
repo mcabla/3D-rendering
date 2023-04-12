@@ -83,7 +83,7 @@ export class ChunkManager {
                 //*Remove it from the to delete list
                 chunksToDelete.delete(chunkToUpdate);
                 //*Update the LOD of the chunk
-                chunkToUpdate.tick(delta);
+                chunkToUpdate.updateLOD();
             }
 
         //* Delete chunks that are still on the to delete list

@@ -27,7 +27,8 @@ export default class World {
       y: 0,
       wireFrameOn: true
     });
-    this.chunk.tick = (delta) => {
+
+    this.chunk.calculateLOD = () => {
       let d = this.chunk.camera.position.distanceTo(this.chunk.position);
       let lod;
       switch (true) {
@@ -43,8 +44,11 @@ export default class World {
         default:
           lod = 1;
       }
-      //Update the LOD and check if it was different from the old value
-      if (this.chunk.setLOD(lod)) console.log("New lod is: " + lod);
+      return lod;
+    }
+
+    this.chunk.tick = (delta) => {
+      this.chunk.updateLOD();
     };
 
     this.loop.updatables.push(this.chunk);

@@ -29,7 +29,7 @@ export class Chunk {
             terrainFunc: (level, val) => {
                 return val;
             }
-        }}) {
+        } }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
@@ -61,7 +61,7 @@ export class Chunk {
         if (this.trees) {
             this.treeDummy = new THREE.Object3D();
             const sphereGeometry = new THREE.SphereGeometry(0.05, 1, 1);
-            const sphereMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
+            const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
             this.treeMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, treeCount);
             this.treeDummy.position.z = -10;
             this.treeDummy.updateMatrix();
@@ -81,18 +81,45 @@ export class Chunk {
         return this.obj;
     }
 
-    //Set a new LOD value and return of the value has changed
-    setLOD(level) {
-        let changed = (level !== this.level);
-        this.level = level;
-        if (changed === true)
-            this.updateLOD();
-        return changed;
+
+    //Calculate a the LOD and generate terrain again if required. 
+    updateLOD() {
+        //Calculate LOD
+        let lod = this.calculateLOD();
+        if (lod === this.lod)
+            return false;//No changes required
+
+        this.lod = lod;
+        //Changes are required. 
+        this.generateTerrain();
+        if (this.trees && this.treeMesh) {
+            this.treeMesh.instanceMatrix.needsUpdate = true;
+            // this.treeMesh.computeBoundingSphere();
+        }
+        return true;
+    }
+
+    //LOD calculator
+    calculateLOD() {
+        let d = this.camera.position.distanceTo(this.position);
+        let lod;
+        switch (true) {
+            case d <= 8:
+                lod = 5;
+                break;
+            case d <= 15:
+                lod = 3;
+                break;
+            default:
+                lod = 2;
+                break;
+        }
+        return lod;
     }
 
     //Generate the terrain for this chunk again using the new LOD
-    updateLOD() {
-        let level = this.level;
+    generateTerrain() {
+        let level = this.lod;
         let segments = this.baseSegments * level
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
         let perlin = new ImprovedNoise();
@@ -120,7 +147,7 @@ export class Chunk {
 
                 let terrainHeight = geometry.attributes.position.array[index];
                 // Add trees only when LOD is high enough and trees haven't been placed yet
-                if (this.trees && this.treeMesh && level < 3 && treePositions.length < this.treeCount && Math.trunc(terrainHeight*10)/10 > this.waterHeight + 0.07) {
+                if (this.trees && this.treeMesh && level < 3 && treePositions.length < this.treeCount && Math.trunc(terrainHeight * 10) / 10 > this.waterHeight + 0.07) {
                     const xP = x / this.chunkSize + xL / segments * 5000;
                     const yP = -y / this.chunkSize + yL / segments * 5000;
                     const noiseVal = perlin.noise(xP, yP, 0);
@@ -148,31 +175,5 @@ export class Chunk {
             this.obj.geometry = geometry;
         }
 
-    }
-
-    //*When a chunk manager is used this is not called directly
-    tick(delta) {
-        let d = this.camera.position.distanceTo(this.position);
-        let lod;
-        switch (true) {
-            case d <= 8:
-                lod = 5;
-                break;
-            case d <= 15:
-                lod = 3;
-                break;
-            default:
-                lod = 2;
-                break;
-        }
-        //Update the LOD and check if it was different from the old value
-        if (this.setLOD(lod)) {
-            // console.log("New lod is: " + lod);
-        }
-
-        if (this.trees && this.treeMesh) {
-            this.treeMesh.instanceMatrix.needsUpdate = true;
-            // this.treeMesh.computeBoundingSphere();
-        }
     }
 }
