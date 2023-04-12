@@ -3,8 +3,18 @@ import { Chunk } from './chunk.js';
 
 
 export class ChunkManager {
-    constructor({ camera, scene, viewDistance, chunkSize, wireFrame = false, material, baseFreq = 1 }) {
+    constructor({
+        camera,
+        scene,
+        viewDistance,
+        chunkSize,
+        wireFrame = false,
+        material,
+        baseSegments,
+        terrainGen
+    }) {
         this.camera = camera;
+        this.cameraPos = new THREE.Vector3();
         this.scene = scene;
         this.viewDistance = Math.floor(viewDistance);
         this.chunkSize = chunkSize;
@@ -12,11 +22,11 @@ export class ChunkManager {
         this.material = material;
         this.chunks = new Set();
 
-
         if (this.viewDistance % 2 === 0 || this.viewDistance <= 0)
             throw new Error(`Viewdistance should be strictly positive odd number not ${this.viewDistance}`);
 
-        this.cameraPos = new THREE.Vector3();
+        this.baseSegments = baseSegments;
+        this.terrainGen = terrainGen;
     }
 
     tick(delta) {
@@ -53,7 +63,9 @@ export class ChunkManager {
                         x: x,
                         y: y,
                         wireFrame: this.wireFrame,
-                        material: this.material
+                        material: this.material,
+                        baseSegments: this.baseSegments,
+                        terrainGen: this.terrainGen
                     });
                     this.scene.add(chunkToUpdate.getMesh());
                     this.chunks.add(chunkToUpdate);

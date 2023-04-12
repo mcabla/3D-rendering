@@ -6,22 +6,21 @@ export class BoidManager {
         camera,
         scene,
         amount,
-        boidSize,
         cubeSize,
+        floorHeight,
+        boidMesh,
         boidBehavior
     }) {
         this.camera = camera;
         this.scene = scene;
         this.amount = amount;
-        this.boidSize = boidSize;
-        this.cubeSize = cubeSize;
         this.boids = [];
-
         for (let i = 0; i < this.amount; i++) {
             let boid = new Boid({
-                boidSize: boidSize,
                 cubeSize: cubeSize,
+                floorHeight: floorHeight,
                 camera: camera,
+                boidMesh: boidMesh,
                 boidBehavior: boidBehavior
             });
             this.scene.add(boid.createBoid());

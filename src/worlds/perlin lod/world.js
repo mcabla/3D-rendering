@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createMeshCube } from './meshCube.js';
 import { createLights } from './lights.js';
-import { Chunk } from '../../utilities/chunk.js';
+import { Chunk } from '../../utilities/terrain/chunk.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { grassBasic } from '../../utilities/materials/grassBasic.js';
 import { terrainTropic } from '../../utilities/materials/terrainTropic.js';

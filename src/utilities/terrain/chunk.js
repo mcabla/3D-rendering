@@ -1,15 +1,27 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
-import { grassBasic } from './materials/grassBasic.js';
-
-const amplitude = 2.5
-const freqGain = 3;
-const amplShrink = 0.2;
-const baseSegments = 20;
-
+import { grassBasic } from '../materials/grassBasic.js';
 
 export class Chunk {
-    constructor({ camera, chunkSize, x, y, wireFrameOn = false, material = grassBasic, lod = 1, baseFreq = 1 }) {
+    constructor({
+        camera,
+        chunkSize,
+        x,
+        y,
+        wireFrameOn = false,
+        material = grassBasic,
+        lod = 1,
+        baseSegments = 20,
+        terrainGen = {
+            //*Attention: If you overwrite one of these you need to overwrite all of them!
+            baseFreq: 1,
+            freqGain: 3,
+            baseAmpl: 2.5,
+            amplShrink: 0.2,
+            terrainFunc: (level, val) => {
+                return val;
+            }
+        } }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
         this.position = new THREE.Vector3(x, y, 0);
@@ -28,13 +40,11 @@ export class Chunk {
             this.obj.material.depthTest = true;
         }
         this.obj.position.set(x, y, 0);
-
         this.lod = lod;
-        this.baseFreq = baseFreq;
-
+        this.baseSegments = baseSegments;
+        this.terrainGen = terrainGen;
         this.updateLOD();
     }
-
 
     //Return the mesh
     getMesh() {
@@ -53,7 +63,7 @@ export class Chunk {
     //Generate the terrain for this chunk again using the new LOD
     updateLOD() {
         let level = this.level;
-        let segments = baseSegments * level
+        let segments = this.baseSegments * level
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
         let perlin = new ImprovedNoise();
 
@@ -63,15 +73,17 @@ export class Chunk {
         const l = segments + 1
         for (let yL = 0; yL < l; yL++)
             for (let xL = 0; xL < l; xL++) {
-                let i = 3 * yL * l + 3 * xL + 2;
+                let index = 3 * yL * l + 3 * xL + 2;
                 //*Stop gaps by lowering chunks that are further away into the ground a bit. Hacky but it works!
-                geometry.attributes.position.array[i] = level * 0.01;
-                for (let l = 1; l <= level; l++) {
-                    const freq = this.baseFreq * freqGain ** l
+                geometry.attributes.position.array[index] = level * 0.01;
+                for (let i = 0; i <= level; i++) {
+                    const freq = this.terrainGen.baseFreq * (this.terrainGen.freqGain ** i);
+                    const ampl = this.terrainGen.baseAmpl * (this.terrainGen.amplShrink ** i);
                     let xP = x / this.chunkSize * freq + xL / segments * freq;
                     let yP = -y / this.chunkSize * freq + yL / segments * freq;
-                    const val = perlin.noise(xP, yP, 0) * amplitude * amplShrink ** l
-                    geometry.attributes.position.array[i] += val;
+                    let val = perlin.noise(xP, yP, 0) * ampl;
+                    val = this.terrainGen.terrainFunc(i, val);
+                    geometry.attributes.position.array[index] += val;
                 }
             }
 
