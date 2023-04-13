@@ -35,7 +35,6 @@ export class Boid {
             conformDirection: 0.001 //Only neighbours: How much the boids want to match the direction/heading of their neighbours
         }
     }) {
-        console.log(`Cubesize: ${typeof (cubeSize)}, Floor height: ${typeof (floorHeight)}, OK: ${typeof (cubeSize) === 'undefined' && typeof (floorHeight) !== 'undefined'}`)
         if (typeof (cubeSize) === 'undefined' && typeof (floorHeight) !== 'undefined')
             this.floorMode = true;
         else

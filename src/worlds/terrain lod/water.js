@@ -20,6 +20,12 @@ export function createWater(scene, height) {
             size: 0.1
         }
     );
+
+    water.rotation.x = - Math.PI / 2;
+    water.tick = (delta) => {
+        // increase the cube's rotation each frame
+        water.material.uniforms['time'].value += 0.5 / 60.0;
+    };
     water.position.z = height;
     return water;
 }

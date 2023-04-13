@@ -26,7 +26,7 @@ export const terrainTropic = new THREE.ShaderMaterial({
         waterLevel: { type: "float", value: -0.05 },
         rockLevel: { type: "float", value: 0.1 },
         sunColor: { type: "c", value: new THREE.Color(0xffffff) },
-        ambientColor: { type: "c", value: new THREE.Color(0xaaaaaa) },
+        ambientColor: { type: "c", value: new THREE.Color(0x222222) },
         sunDirection: { type: "v3", value: new THREE.Vector3(0.70707, 0.70707, 0.0) }
     },
     vertexShader: /* glsl */`
