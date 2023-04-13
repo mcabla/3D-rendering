@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { createLights } from './lights.js';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import {exportGLTF} from "../../utilities/exporter.js";
 import {
   getCherryBlossomTree, getFern,
   getFlower,
@@ -11,6 +12,21 @@ import {
   getSpruce,
   getWeepingWillowTree
 } from "../../utilities/trees/tree.js";
+import {GUI} from "three/addons/libs/lil-gui.module.min.js";
+
+const params = {
+  trs: false,
+  onlyVisible: true,
+  binary: false,
+  maxTextureSize: 4096,
+  exportFern: exportFern,
+  exportMaple: exportMaple,
+  exportFlower: exportFlower,
+  exportSpruce: exportSpruce,
+  exportPalmTree: exportPalmTree,
+  exportWeepingWillow: exportWeepingWillow,
+  exportCherryBlossom: exportCherryBlossom,
+};
 
 export default class World {
   constructor(main) {
@@ -21,6 +37,11 @@ export default class World {
 
 
     this.scene.background = new THREE.Color(0x151519);
+
+    const fern = getFern();
+    fern.position.x = -100;
+    fern.position.y = -50;
+    this.scene.add(fern);
 
     const mapleTree = getMapleTree();
     mapleTree.position.x = -50;
@@ -51,11 +72,6 @@ export default class World {
     cherryBlossomTree.position.y = -50;
     this.scene.add(cherryBlossomTree);
 
-    const fern = getFern();
-    fern.position.x = -100;
-    fern.position.y = -50;
-    this.scene.add(fern);
-
     this.light = createLights();
 
     this.scene.add(this.light);
@@ -66,6 +82,27 @@ export default class World {
     controls.minDistance = 4.0;
     controls.maxDistance = 2000.0;
     controls.update();
+
+
+    const gui = new GUI();
+
+    let h = gui.addFolder( 'Settings' );
+    h.add( params, 'trs' ).name( 'Use TRS' );
+    h.add( params, 'onlyVisible' ).name( 'Only Visible Objects' );
+    h.add( params, 'binary' ).name( 'Binary (GLB)' );
+    h.add( params, 'maxTextureSize', 2, 8192 ).name( 'Max Texture Size' ).step( 1 );
+
+    h = gui.addFolder( 'Export' );
+    h.add( params, 'exportFern' ).name( 'Export Fern' );
+    h.add( params, 'exportMaple' ).name( 'Export Maple' );
+    h.add( params, 'exportFlower' ).name( 'Export Flower' );
+    h.add( params, 'exportSpruce' ).name( 'Export Spruce' );
+    h.add( params, 'exportPalmTree' ).name( 'Export Palm tree' );
+    h.add( params, 'exportWeepingWillow' ).name( 'Export Weeping Willow' );
+    h.add( params, 'exportCherryBlossom' ).name( 'Export Cherry Blossom' );
+
+    gui.open();
+
   }
 }
 
@@ -78,4 +115,33 @@ function createCamera() {
   );
   camera.position.set(0, 0, 100);
   return camera;
+}
+
+function exportFern() {
+  exportGLTF( getFern(), 'fern', params );
+}
+
+function exportMaple() {
+  exportGLTF( getMapleTree(),'maple', params );
+}
+
+
+function exportFlower() {
+  exportGLTF( getFlower(), 'flower', params );
+}
+
+function exportSpruce() {
+  exportGLTF( getSpruce(), 'spruce', params );
+}
+
+function exportPalmTree() {
+  exportGLTF( getPalmTree(), 'palm', params );
+}
+
+function exportWeepingWillow() {
+  exportGLTF( getWeepingWillowTree(), 'willow', params );
+}
+
+function exportCherryBlossom() {
+  exportGLTF( getCherryBlossomTree(), 'cherry', params );
 }
