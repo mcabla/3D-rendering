@@ -12,7 +12,7 @@ export function createWater(scene, height) {
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             }),
             sunDirection: new THREE.Vector3(),
-            sunColor: 0xffffff,
+            sunColor: 0xffff00,
             waterColor: 0x001e0f,
             distortionScale: 0.1,
             fog: false,
@@ -24,7 +24,7 @@ export function createWater(scene, height) {
     water.rotation.x = - Math.PI / 2;
     water.tick = (delta) => {
         // increase the cube's rotation each frame
-        water.material.uniforms['time'].value += 0.5 / 60.0;
+        water.material.uniforms['time'].value += delta / 20;
     };
     water.position.z = height;
     return water;

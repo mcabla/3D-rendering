@@ -44,7 +44,7 @@ export default class Main {
   createRenderer() {
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
-      precision: 'highp'
+      precision: 'highp',
     });
     renderer.useLegacyLights = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;

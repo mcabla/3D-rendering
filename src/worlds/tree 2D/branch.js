@@ -12,7 +12,7 @@ export default class Branch {
     }
 
     getBranch() {
-        const material = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 15 });
+        const material = new THREE.LineBasicMaterial({ color: 0x853b1e, linewidth: 150 });
         const lineBranches = new THREE.Line(this.geometry_branches, material);
         return lineBranches;
     }

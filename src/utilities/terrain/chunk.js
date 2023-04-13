@@ -82,7 +82,7 @@ export class Chunk {
     }
 
 
-    //Calculate a the LOD and generate terrain again if required. 
+    //Calculate the LOD and generate terrain again if required.
     updateLOD() {
         //Calculate LOD
         let lod = this.calculateLOD();
@@ -90,7 +90,7 @@ export class Chunk {
             return false;//No changes required
 
         this.lod = lod;
-        //Changes are required. 
+        //Changes are required.
         this.generateTerrain();
         if (this.trees && this.treeMesh) {
             this.treeMesh.instanceMatrix.needsUpdate = true;
@@ -151,8 +151,8 @@ export class Chunk {
                 // Add trees only when LOD is high enough and trees haven't been placed yet
                 if (this.trees && this.treeMesh && level < 3 && treePositions.length < this.treeCount && Math.trunc(terrainHeight * 10) / 10 > this.waterHeight + 0.07) {
                     const xP = x / this.chunkSize + xL / segments * 5000;
-                    const yP = -z / this.chunkSize + zL / segments * 5000;
-                    const noiseVal = perlin.noise(xP, yP, 0);
+                    const zP = -z / this.chunkSize + zL / segments * 5000;
+                    const noiseVal = perlin.noise(xP, 0, zP);
                     if (noiseVal > treeThreshold) {
                         //this.treeDummy.position.x = x + (xL / segments * 5000) * this.chunkSize;
                         // this.treeDummy.position.y = y + (yL / segments * 5000) * this.chunkSize;

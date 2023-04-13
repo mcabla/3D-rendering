@@ -10,8 +10,8 @@ const stone = new THREE.TextureLoader().load('assets/images/rock_wall_02_diff_1k
 const stoneNormal = new THREE.TextureLoader().load('assets/images/rock_wall_02_nor_gl_1k.png', onLoad);
 const grass = new THREE.TextureLoader().load('assets/images/coast_sand_rocks_02_diff_1k.png', onLoad);
 const grassNormal = new THREE.TextureLoader().load('assets/images/coast_sand_rocks_02_nor_gl_1k.png', onLoad);
-const dirt = new THREE.TextureLoader().load('assets/images/coast_sand_04_diff_1k.jpg', onLoad);
-const dirtNormal = new THREE.TextureLoader().load('assets/images/coast_sand_04_nor_gl_1k.png', onLoad);
+const sand = new THREE.TextureLoader().load('assets/images/coast_sand_04_diff_1k.jpg', onLoad);
+const sandNormal = new THREE.TextureLoader().load('assets/images/coast_sand_04_nor_gl_1k.png', onLoad);
 
 // Define the custom shader material
 export const terrainMaterial = new THREE.ShaderMaterial({
@@ -20,8 +20,8 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         stoneNormalMap: { type: "t", value: stoneNormal },
         grassTexture: { type: "t", value: grass },
         grassNormalMap: { type: "t", value: grassNormal },
-        dirtTexture: { type: "t", value: dirt },
-        dirtNormalMap: { type: "t", value: dirtNormal },
+        sandTexture: { type: "t", value: sand },
+        sandNormalMap: { type: "t", value: sandNormal },
         stoneAngle: { type: "float", value: 0.5 },
         grassAngle: { type: "float", value: 1.1 },
         waterLevel: { type: "float", value: -0.2 },
@@ -63,11 +63,11 @@ export const terrainMaterial = new THREE.ShaderMaterial({
     fragmentShader: /* glsl */`
         uniform sampler2D stoneTexture;
         uniform sampler2D grassTexture;
-        uniform sampler2D dirtTexture;
+        uniform sampler2D sandTexture;
         
         uniform sampler2D stoneNormalMap;
         uniform sampler2D grassNormalMap;
-        uniform sampler2D dirtNormalMap;
+        uniform sampler2D sandNormalMap;
         
         uniform float stoneAngle;
         uniform float grassAngle;
@@ -85,21 +85,21 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         varying vec3 vBitangent;
 
         void main() {            
-            float angle = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
+            float angle = dot(normalize(vNormal), vec3(0.0, 1.0, 0.0));
             
             vec4 stoneTexel = texture2D(stoneTexture, vUv  * 20.0);
             vec4 grassTexel = texture2D(grassTexture, vUv * 20.0);
-            vec4 dirtTexel = texture2D(dirtTexture, vUv * 20.0);
+            vec4 sandTexel = texture2D(sandTexture, vUv * 20.0);
             
             vec4 stoneNormal = texture2D(stoneNormalMap, vUv  * 20.0);
             vec4 grassNormal = texture2D(grassNormalMap, vUv * 20.0);
-            vec4 dirtNormal = texture2D(dirtNormalMap, vUv * 20.0);            
+            vec4 sandNormal = texture2D(sandNormalMap, vUv * 20.0);            
             
-            vec4 steepnessTexel = mix(stoneTexel, grassTexel, smoothstep(stoneAngle, grassAngle, angle));
-            vec4 steepnessNormal = mix(stoneNormal, grassNormal, smoothstep(stoneAngle, grassAngle, angle));
+            vec4 heightTexel = mix(sandTexel, grassTexel, smoothstep(waterLevel, surfaceLevel, vPosition.y));
+            vec4 heightNormal = mix(sandNormal, grassNormal, smoothstep(waterLevel, surfaceLevel, vPosition.y));
             
-            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, surfaceLevel, vPosition.y));
-            vec4 normalMap = mix(dirtNormal,steepnessNormal, smoothstep(waterLevel, surfaceLevel, vPosition.y));
+            vec4 texel = mix(stoneTexel, heightTexel, smoothstep(stoneAngle, grassAngle, angle)); 
+            vec4 normalMap = mix(stoneNormal, heightNormal, smoothstep(waterLevel, surfaceLevel, vPosition.y));
             
             vec3 normal = normalize(vNormal);
             vec3 tangent = normalize(vTangent);

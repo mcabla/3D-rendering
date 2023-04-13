@@ -4,9 +4,9 @@ import { createLights } from './lights.js';
 import { Chunk } from './chunk.js';
 
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Water } from 'three/addons/objects/Water.js';
 import { Sky } from 'three/addons/objects/Sky.js';
+import {FlyControls} from "three/addons/controls/FlyControls.js";
 
 export default class World {
   renderTarget;
@@ -56,13 +56,16 @@ export default class World {
     this.scene.add(this.light, this.chunk.createChunk());
 
     //Camera controls orbit style
-    const controls = new OrbitControls(this.camera, this.main.renderer.domElement);
-    controls.minDistance = 1;
-    controls.maxDistance = 1000;
-    controls.maxPolarAngle = Math.PI / 2;
-    controls.target = new THREE.Vector3(0, 0, 0);
-    controls.controlsEnabled = true;
-    controls.update();
+    const controls = new FlyControls(this.camera, this.main.renderer.domElement);
+    controls.movementSpeed = 4;
+    controls.domElement = this.main.renderer.domElement;
+    controls.rollSpeed = Math.PI / 6;
+    controls.dragToLook = true;
+    this.loop.updatables.push({
+      tick: function (delta) {
+        controls.update(delta);
+      }
+    });
 
     this.gui = this.createGUI();
   }
@@ -85,7 +88,7 @@ export default class World {
           distortionScale: 0.1,
           fog: this.scene.fog !== undefined,
           alpha: 0.5,
-          size: 0.1
+          size: 0.1,
         }
     );
 
