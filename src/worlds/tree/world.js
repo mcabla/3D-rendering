@@ -18,8 +18,8 @@ export default class World {
     // Define the L-system rules
     const rules = {
       'S': 'SS',
-      'F': 'F++F--',//-[-F+]+*[*F/]//[/F*]*',
-      'L': 'LL',
+      'F': 'F+[+F-F-F]--[-F+F+F]+*[*F/F/F]//[/F*F*F]*FFL',
+      'L': 'LLF',
     };
 
     // Generate the L-system string
@@ -40,7 +40,7 @@ export default class World {
     console.log(axiom);
 
 // Convert the L-system string to a list of branch instructions
-    const branchAngle = Math.PI / 4; // angle between branches
+    const branchAngle = Math.PI / 8; // angle between branches
     const branchLength = 10; // length of each branch
     let position = new THREE.Vector3(0, 0, 0); // starting position
     let direction = new THREE.Vector3(0, 1, 0); // starting direction
@@ -57,28 +57,23 @@ export default class World {
             direction: new THREE.Vector3().copy(direction)
           });
           // move forward
-          position.add(direction.clone()/*.applyAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI/2)*/.multiplyScalar(branchLength));
-          console.log(char, direction);
+          position.add(direction.clone().multiplyScalar(branchLength));
           break;
         case '+':
           // rotate right
-          direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), branchAngle - Math.PI/2);
-          console.log(char, direction);
+          direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), -branchAngle);
           break;
         case '-':
           // rotate left
-          direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), -branchAngle);
-          console.log(char, direction);
+          direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), branchAngle);
           break;
         case '*':
           // rotate forward
           direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), branchAngle);
-          console.log(char, direction);
           break;
         case '/':
           // rotate backward
           direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), -branchAngle);
-          console.log(char, direction);
           break;
         case '[':
           // save position and direction to the stack
@@ -106,7 +101,9 @@ export default class World {
     const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
     const group = new THREE.Group();
     group.add(trunk);
-    trunk.position.add(new THREE.Vector3(0,branchLength/2,0));
+    //group.up = new THREE.Vector3(0,1,0)
+    trunk.position.add(new THREE.Vector3(0,0,branchLength/2));
+    trunk.rotateX(Math.PI/2)
 
     const leafGeometry = new THREE.SphereGeometry(2, 8, 4);
     const leafMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
@@ -116,22 +113,22 @@ export default class World {
     for (let i = 0; i < branches.length; i++) {
       const branch = group.clone();
       branch.position.copy(branches[i].position);
-      branch.rotation.set(branches[i].direction.x,branches[i].direction.y, branches[i].direction.z);
-      console.log(branch);
+      const destination = new THREE.Vector3().copy(branches[i].direction).multiplyScalar(branchLength).add(branch.position)/*.applyAxisAngle(new THREE.Vector3(0, 0, 1), -Math.PI/2)*/;
+      branch.lookAt(destination.x, destination.y, destination.z);
       // branch.scale.y = branches[i].direction.length();
       branchGroup.add(branch);
 
       const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
-      leaf.position.copy(branches[i].position);
+      leaf.position.copy(destination);
       // leaf.position.y += 10;
-      leaf.lookAt(branch.position.clone().add(branches[i].direction));
+      //leaf.lookAt(branch.position.clone().add(branches[i].direction));
       leafGroup.add(leaf);
     }
 
     // this.scene.add(trunk);
     this.scene.add(branchGroup);
     this.scene.add(leafGroup);
-    this.scene.add(new THREE.Mesh(leafGeometry, leafMaterial));
+    //this.scene.add(new THREE.Mesh(leafGeometry, leafMaterial));
 
 
     this.light = createLights();
