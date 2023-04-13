@@ -5,7 +5,8 @@ import { ChunkManager } from '../../utilities/terrain/chunkManager.js';
 import { grassBasic } from '../../utilities/materials/grassBasic.js';
 import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
-import { createWater } from './water.js';
+import { createWater } from '../../utilities/materials/water.js';
+
 
 //Inspiration: 
 
@@ -28,6 +29,7 @@ export default class World {
     this.water = createWater(this.scene, 0);
     this.scene.add(this.water);
     this.loop.updatables.push(this.water);
+    this.main.renderer.alpha = true; //Turn on transparency
 
     //Add chunks
     let chunkManager = new ChunkManager({

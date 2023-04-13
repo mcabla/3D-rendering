@@ -8,6 +8,7 @@ export default class Main {
   constructor(container, worldName) {
     this.container = container;
     this.renderer = this.createRenderer();
+    this.renderer.alpha = true; //Turn on transparency
     this.scene = this.createScene();
     this.stats = this.createStats();
     this.loop = new Loop(this);

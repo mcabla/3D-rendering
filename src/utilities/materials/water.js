@@ -15,17 +15,25 @@ export function createWater(scene, height) {
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
             distortionScale: 0.1,
-            fog: false,
-            alpha: 0.5,
+            fog: scene.fog !== undefined,
+            alpha: 0.1,
+            transparent: true,
             size: 0.1
         }
     );
+    
+    console.log(water.material); 
+    water.material.uniforms['size'].value = 10; //*Can't set this in the constructor directly? 
+    
+    water.material.uniforms.alpha.value = 0.01;
+    water.material.opacity = 0.01;
+    water.material.uniforms['alpha'].value = 0.1;
+    // water.material.uniforms['transparent'].value = true;
 
     water.rotation.x = - Math.PI / 2;
     water.tick = (delta) => {
-        // increase the cube's rotation each frame
-        water.material.uniforms['time'].value += 0.5 / 60.0;
+        water.material.uniforms['time'].value += 0.5 * delta;
     };
-    water.position.z = height;
+    water.position.y = height;
     return water;
 }
