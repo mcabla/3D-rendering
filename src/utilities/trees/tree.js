@@ -1,16 +1,42 @@
 import * as THREE from "three";
 
+const defaultLeafGeometry = new THREE.SphereGeometry(2, 8, 4);
+const defaultLeafMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+const defaultLeafMesh = new THREE.Mesh(defaultLeafGeometry, defaultLeafMaterial);
 
+const defaultTrunkMaterial = new THREE.MeshPhongMaterial({ color: 0x663300 });
+
+const onLoad = (texture) => {
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+};
 
 export const getMapleTree = () => {
     const rules = {
-        'A': 'EEB',
-        'B': 'EF[+B][-B][/B][*B]^^B',
+        'A': 'EEC',
+        'B': '[+C][-C][/C][*C]',
+        'C': 'EF[+C][-C][/C][*C]^^C',
     };
     const branchAngle = Math.PI / 4; // angle between branches
     const branchLength = 10; // length of each branch
-    const iterations =5; // number of times to apply the rules
-    return getTree(rules, branchAngle, branchLength, iterations);
+    const iterations = 5; // number of times to apply the rules
+
+    const textureLoader = new THREE.TextureLoader();
+    const leafTexture = textureLoader.load('assets/images/vegetation_leaf_maple_01.png');
+
+    const leafGeometry = new THREE.PlaneGeometry(20, 20);
+    const leafMaterial = new THREE.MeshBasicMaterial({
+        map: leafTexture,
+        side: THREE.DoubleSide,
+        transparent: true
+    });
+    const leafMesh = new THREE.Mesh(leafGeometry, leafMaterial);
+
+    const barkTexture = textureLoader.load('assets/images/vegetation_tree_bark_40.png', onLoad);
+    const trunkMaterial = new THREE.MeshBasicMaterial({
+        map: barkTexture,
+    });
+
+    return getTree(rules, branchAngle, branchLength, iterations, leafMesh, trunkMaterial);
 }
 
 export const getPalmTree = () => {
@@ -97,7 +123,7 @@ export const getFern = () => {
  * @param branchLength
  * @param iterations
  */
-export const getTree = (rules, branchAngle, branchLength, iterations) => {
+export const getTree = (rules, branchAngle, branchLength, iterations, leafMesh = defaultLeafMesh, trunkMaterial = defaultTrunkMaterial) => {
     // Generate the L-system string
     let axiom = 'A'; // starting string
     for (let i = 0; i < iterations; i++) {
@@ -187,16 +213,12 @@ export const getTree = (rules, branchAngle, branchLength, iterations) => {
 
     // Create the Three.js objects for the tree
     const trunkGeometry = new THREE.CylinderGeometry(1, 1, branchLength, 4, 1, false);
-    const trunkMaterial = new THREE.MeshPhongMaterial({ color: 0x663300 });
     const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
     const group = new THREE.Group();
     group.add(trunk);
     //group.up = new THREE.Vector3(0,1,0)
     trunk.position.add(new THREE.Vector3(0,0,branchLength/2));
-    trunk.rotateX(Math.PI/2)
-
-    const leafGeometry = new THREE.SphereGeometry(2, 8, 4);
-    const leafMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+    trunk.rotateX(Math.PI/2);
 
     const branchGroup = new THREE.Group();
     const leafGroup = new THREE.Group();
@@ -208,8 +230,9 @@ export const getTree = (rules, branchAngle, branchLength, iterations) => {
         branchGroup.add(branch);
 
         if (filteredBranches[i].leaves) {
-            const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+            const leaf = leafMesh.clone();
             leaf.position.copy(destination);
+            // leaf.rotation.copy(filteredBranches[i].direction);
             leafGroup.add(leaf);
         }
     }

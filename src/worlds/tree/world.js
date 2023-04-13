@@ -58,7 +58,6 @@ export default class World {
 
     this.light = createLights();
 
-
     this.scene.add(this.light);
 
     const controls = new OrbitControls( this.camera, main.renderer.domElement );

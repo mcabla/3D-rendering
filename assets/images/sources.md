@@ -13,3 +13,4 @@ Tool to make images seamless:
 
 # Leaves
 https://opengameart.org/content/paramecijs-vegetation-base-texture-pack
+https://opengameart.org/content/paramecijs-tree-trunks-and-stumps-texture-pack-1
