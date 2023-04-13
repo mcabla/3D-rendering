@@ -67,5 +67,3 @@ function createCamera() {
 
   return camera;
 }
-
-
