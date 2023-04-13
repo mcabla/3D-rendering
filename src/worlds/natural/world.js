@@ -85,8 +85,10 @@ export default class World {
       trees: true
     });
     this.loop.updatables.push(chunkManager);
-    terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.05;
-    terrainMaterial.uniforms['surfaceLevel'].value = waterHeight + 0.07;
+    terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.01;
+    terrainMaterial.uniforms['surfaceLevel'].value = waterHeight + 0.09;
+    terrainMaterial.uniforms['stoneAngle'].value =  0.6;
+    terrainMaterial.uniforms['grassAngle'].value = 0.9;
 
     //Add boids
     this.boidManager = new BoidManager({
@@ -141,7 +143,7 @@ function createCamera() {
   const camera = new THREE.PerspectiveCamera(
     35, // fov = Field Of View
     1, // dummy value for aspect ratio
-    0.1, // near clipping plane 
+    0.1, // near clipping plane
     100, // far clipping plane
   );
   camera.position.set(-10, 2, 0);
