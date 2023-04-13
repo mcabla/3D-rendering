@@ -98,8 +98,8 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec4 steepnessTexel = mix(stoneTexel, grassTexel, smoothstep(stoneAngle, grassAngle, angle));
             vec4 steepnessNormal = mix(stoneNormal, grassNormal, smoothstep(stoneAngle, grassAngle, angle));
             
-            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, surfaceLevel, vPosition.z));
-            vec4 normalMap = mix(dirtNormal,steepnessNormal, smoothstep(waterLevel, surfaceLevel, vPosition.z));
+            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, surfaceLevel, vPosition.y));
+            vec4 normalMap = mix(dirtNormal,steepnessNormal, smoothstep(waterLevel, surfaceLevel, vPosition.y));
             
             vec3 normal = normalize(vNormal);
             vec3 tangent = normalize(vTangent);

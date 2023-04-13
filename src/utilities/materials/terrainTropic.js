@@ -26,7 +26,7 @@ export const terrainTropic = new THREE.ShaderMaterial({
         waterLevel: { type: "float", value: -0.05 },
         rockLevel: { type: "float", value: 0.1 },
         sunColor: { type: "c", value: new THREE.Color(0xffffff) },
-        ambientColor: { type: "c", value: new THREE.Color(0x222222) },
+        ambientColor: { type: "c", value: new THREE.Color(0xaaaaaa) },
         sunDirection: { type: "v3", value: new THREE.Vector3(0.70707, 0.70707, 0.0) }
     },
     vertexShader: /* glsl */`
@@ -76,17 +76,21 @@ export const terrainTropic = new THREE.ShaderMaterial({
         varying vec3 vPosition;
         varying vec3 vTangent;
         varying vec3 vBitangent;
-
+        
         void main() {            
             float angle = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
             
+            //mod(vUv.x, 4.0)*2.0
+            float randAngle = ceil(mod(vUv.x*20.0, 4.0))*0.785398163397;
+            vec2 rotatedUv = vec2(cos(randAngle) * (vUv.x - 0.5) - sin(randAngle) * (vUv.y - 0.5) + 0.5, sin(randAngle) * (vUv.x - 0.5) + cos(randAngle) * (vUv.y - 0.5) + 0.5);
+
             vec4 stoneTexel = texture2D(stoneTexture, vUv  * 20.0);
-            vec4 grassTexel = texture2D(grassTexture, vUv * 20.0);
+            vec4 grassTexel = texture2D(grassTexture,  rotatedUv * 20.0);
             vec4 dirtTexel = texture2D(dirtTexture, vUv * 20.0);       
             
-            vec4 steepnessTexel = mix(stoneTexel, grassTexel, smoothstep(.5, 0.8, angle));
+            vec4 steepnessTexel = mix(grassTexel, stoneTexel, smoothstep(.5, 0.8, angle));
             
-            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, rockLevel, vPosition.z));
+            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, rockLevel, vPosition.y));
             
             vec3 normal = normalize(vNormal);
             vec3 tangent = normalize(vTangent);
@@ -102,6 +106,7 @@ export const terrainTropic = new THREE.ShaderMaterial({
         
             gl_FragColor = vec4(ambient + sunLight, texel.a);
         }
+
         `,
     receiveShadow: true,
     castShadow: true,

@@ -35,7 +35,7 @@ export default class World {
       scene: this.scene,
       viewDistance: 7,
       chunkSize: cubeSize,
-      material: grassBasic
+      material: terrainTropic
     });
 
     this.loop.updatables.push(chunkManager);
