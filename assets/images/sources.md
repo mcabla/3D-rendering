@@ -1,4 +1,11 @@
 # Sources for images
 
-- grass2.jpg: https://wallpapersafari.com/w/a0xvGL and made seamless with: https://www.imgonline.com.ua/eng/make-seamless-texture.php
-- sand.jpg: https://archivetextures.net/?a=download&id=83864  and made seamless with: https://www.imgonline.com.ua/eng/make-seamless-texture.php
+
+
+Tool to make images seamless: 
+
+ https://www.imgonline.com.ua/eng/make-seamless-texture.php
+
+- grass2.jpg: https://wallpapersafari.com/w/a0xvGL 
+- sand.jpg: https://archivetextures.net/?a=download&id=83864  
+- rocks2: https://www.publicdomainpictures.net/en/view-image.php?image=120823&picture=rock-texture 

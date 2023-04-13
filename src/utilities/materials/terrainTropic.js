@@ -6,7 +6,7 @@ const onLoad = (texture) => {
 };
 
 // Define the two textures to blend
-const stone = new THREE.TextureLoader().load('assets/images/rock_wall_02_diff_1k.jpg', onLoad);
+const stone = new THREE.TextureLoader().load('assets/images/rocks2-seamless.jpg', onLoad);
 
 //*Grass
 const grass = new THREE.TextureLoader().load('assets/images/grass2-seamless2-bright.jpg', onLoad);
@@ -23,8 +23,8 @@ export const terrainTropic = new THREE.ShaderMaterial({
 
         dirtTexture: { type: "t", value: dirt },
 
-        waterLevel: { type: "float", value: -0.05 },
-        rockLevel: { type: "float", value: 0.1 },
+        lowestGrass: { type: "float", value: -0.05 },
+        highestSand: { type: "float", value: 0.1 },
         sunColor: { type: "c", value: new THREE.Color(0xffffff) },
         ambientColor: { type: "c", value: new THREE.Color(0xaaaaaa) },
         sunDirection: { type: "v3", value: new THREE.Vector3(0.70707, 0.70707, 0.0) }
@@ -64,8 +64,8 @@ export const terrainTropic = new THREE.ShaderMaterial({
         uniform sampler2D grassTexture;
         uniform sampler2D dirtTexture;
         
-        uniform float waterLevel;
-        uniform float rockLevel;
+        uniform float lowestGrass;
+        uniform float highestSand;
         
         uniform vec3 sunDirection;
         uniform vec3 sunColor;
@@ -84,13 +84,13 @@ export const terrainTropic = new THREE.ShaderMaterial({
             float randAngle = ceil(mod(vUv.x*20.0, 4.0))*0.785398163397;
             vec2 rotatedUv = vec2(cos(randAngle) * (vUv.x - 0.5) - sin(randAngle) * (vUv.y - 0.5) + 0.5, sin(randAngle) * (vUv.x - 0.5) + cos(randAngle) * (vUv.y - 0.5) + 0.5);
 
-            vec4 stoneTexel = texture2D(stoneTexture, vUv  * 20.0);
+            vec4 stoneTexel = texture2D(stoneTexture, rotatedUv  * 20.0);
             vec4 grassTexel = texture2D(grassTexture,  rotatedUv * 20.0);
             vec4 dirtTexel = texture2D(dirtTexture, vUv * 20.0);       
             
             vec4 steepnessTexel = mix(grassTexel, stoneTexel, smoothstep(.5, 0.8, angle));
             
-            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(waterLevel, rockLevel, vPosition.y));
+            vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(lowestGrass, highestSand, vPosition.y));
             
             vec3 normal = normalize(vNormal);
             vec3 tangent = normalize(vTangent);
@@ -106,7 +106,6 @@ export const terrainTropic = new THREE.ShaderMaterial({
         
             gl_FragColor = vec4(ambient + sunLight, texel.a);
         }
-
         `,
     receiveShadow: true,
     castShadow: true,
