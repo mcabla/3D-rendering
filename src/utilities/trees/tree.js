@@ -1,9 +1,11 @@
 import * as THREE from "three";
 
-export const getOakTree = () => {
+
+
+export const getMapleTree = () => {
     const rules = {
         'A': 'EEB',
-        'B': 'EF[+B][-B][/B][*B]B',
+        'B': 'EF[+B][-B][/B][*B]^^B',
     };
     const branchAngle = Math.PI / 4; // angle between branches
     const branchLength = 10; // length of each branch
@@ -11,12 +13,45 @@ export const getOakTree = () => {
     return getTree(rules, branchAngle, branchLength, iterations);
 }
 
+export const getPalmTree = () => {
+    const rules = {
+        'A': 'EEEEEF',
+        'F': '[+F][-F]F[*F][/F]F', // Generated with chatGPT
+    };
+    const branchAngle = Math.PI / 3; // angle between branches
+    const branchLength = 10; // length of each branch
+    const iterations =2; // number of times to apply the rules
+    return getTree(rules, branchAngle, branchLength, iterations);
+}
+
+export const getWeepingWillowTree = () => {
+    const rules = {
+        'A': 'E*E/E*EF',
+        'F': '[+F][-F][*F]F', // Generated with chatGPT
+    };
+    const branchAngle = Math.PI / 4; // angle between branches
+    const branchLength = 10; // length of each branch
+    const iterations =5; // number of times to apply the rules
+    return getTree(rules, branchAngle, branchLength, iterations);
+}
+
+export const getCherryBlossomTree = () => {
+    const rules = {
+        'A': 'EF',
+        'F': 'E[+F][/-F][*F][+F][*F][*F][-F][/*F]', // Generated with chatGPT
+    };
+    const branchAngle = Math.PI / 4; // angle between branches
+    const branchLength = 10; // length of each branch
+    const iterations =4; // number of times to apply the rules
+    return getTree(rules, branchAngle, branchLength, iterations);
+}
+
 export const getSpruce = () => {
     // Define the L-system rules
     const rules = {
         'A': 'EEEB',
-        'B': 'CFCB',
-        'C': '^[++++++++++++++R][--------------S][//////////////T][**************U]',
+        'B': 'CFC^B',
+        'C': '[++++++++++++++R][--------------S][//////////////T][**************U]',
         'R': 'R-F',
         'S': 'S+F',
         'T': 'T*F',
@@ -30,12 +65,26 @@ export const getSpruce = () => {
 
 
 export const getFlower = () => {
+    // Define the L-system rules
     const rules = {
         'A': '[+F][-F][/F][*F]F',
     };
     const branchAngle = Math.PI / 8; // angle between branches
     const branchLength = 10; // length of each branch
     const iterations =1; // number of times to apply the rules
+    return getTree(rules, branchAngle, branchLength, iterations);
+}
+
+
+export const getFern = () => {
+    // Define the L-system rules
+    const rules = {
+        'A': 'F',
+        'F': '[+F][-F][*F][/F]',
+    };
+    const branchAngle = Math.PI / 4; // angle between branches
+    const branchLength = 10; // length of each branch
+    const iterations =3; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
 
@@ -63,9 +112,9 @@ export const getTree = (rules, branchAngle, branchLength, iterations) => {
         }
         axiom = newAxiom;
     }
-    console.log(axiom);
+    // console.log(axiom);
 
-// Convert the L-system string to a list of branch instructions
+    // Convert the L-system string to a list of branch instructions
     let position = new THREE.Vector3(0, 0, 0); // starting position
     let direction = new THREE.Vector3(0, 1, 0); // starting direction
     let stack = []; // stack for storing positions and directions
@@ -134,9 +183,9 @@ export const getTree = (rules, branchAngle, branchLength, iterations) => {
 
     const filteredBranches = branches.filter((obj, index, arr) => !isDuplicate(obj, index, arr));
 
-    console.log(stack, branches, filteredBranches);
+    // console.log(stack, branches, filteredBranches);
 
-// Create the Three.js objects for the tree
+    // Create the Three.js objects for the tree
     const trunkGeometry = new THREE.CylinderGeometry(1, 1, branchLength, 4, 1, false);
     const trunkMaterial = new THREE.MeshPhongMaterial({ color: 0x663300 });
     const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);

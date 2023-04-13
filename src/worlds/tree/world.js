@@ -3,7 +3,14 @@ import * as THREE from 'three';
 import { createLights } from './lights.js';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {getFlower, getOakTree, getSpruce} from "../../utilities/trees/tree.js";
+import {
+  getCherryBlossomTree, getFern,
+  getFlower,
+  getMapleTree,
+  getPalmTree,
+  getSpruce,
+  getWeepingWillowTree
+} from "../../utilities/trees/tree.js";
 
 export default class World {
   constructor(main) {
@@ -15,10 +22,10 @@ export default class World {
 
     this.scene.background = new THREE.Color(0x151519);
 
-    const oakTree = getOakTree();
-    oakTree.position.x = -50;
-    oakTree.position.y = -50;
-    this.scene.add(oakTree);
+    const mapleTree = getMapleTree();
+    mapleTree.position.x = -50;
+    mapleTree.position.y = -50;
+    this.scene.add(mapleTree);
 
     const flower = getFlower();
     flower.position.y = -50;
@@ -28,6 +35,26 @@ export default class World {
     spruceTree.position.x = 50;
     spruceTree.position.y = -50;
     this.scene.add(spruceTree);
+
+    const palmTree = getPalmTree();
+    palmTree.position.x = 100;
+    palmTree.position.y = -50;
+    this.scene.add(palmTree);
+
+    const weepingWillowTree = getWeepingWillowTree();
+    weepingWillowTree.position.x = 150;
+    weepingWillowTree.position.y = -50;
+    this.scene.add(weepingWillowTree);
+
+    const cherryBlossomTree = getCherryBlossomTree();
+    cherryBlossomTree.position.x = 200;
+    cherryBlossomTree.position.y = -50;
+    this.scene.add(cherryBlossomTree);
+
+    const fern = getFern();
+    fern.position.x = -100;
+    fern.position.y = -50;
+    this.scene.add(fern);
 
     this.light = createLights();
 
