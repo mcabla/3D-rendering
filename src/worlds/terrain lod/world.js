@@ -25,22 +25,42 @@ export default class World {
     this.light = createLights();
     this.scene.add(this.light);
 
-    //Add water
-    this.water = createWater(this.scene, 0);
-    this.scene.add(this.water);
-    this.loop.updatables.push(this.water);
-    this.main.renderer.alpha = true; //Turn on transparency
-
     //Add chunks
+    const terrainGen = {
+      //*Attention: If you overwrite one of these you need to overwrite all of them!
+      baseFreq: 1,
+      freqGain: 3,
+      baseAmpl: 2.5,
+      amplShrink: 0.2,
+      terrainFunc: (level, val) => {
+        if (level === 0) {
+          let beachSlope = 0.3;
+          let terrainOffset = 0.1;
+          let boundary = terrainOffset / (1 - beachSlope);
+          if (val < boundary)
+            return val * beachSlope;
+          else
+            return val - terrainOffset;
+        }
+        return val;
+      }
+    }
+
+
     let chunkManager = new ChunkManager({
       camera: this.camera,
       scene: this.scene,
       viewDistance: 7,
       chunkSize: cubeSize,
-      material: terrainTropic
+      material: terrainTropic,
+      terrainGen: terrainGen
     });
-
     this.loop.updatables.push(chunkManager);
+
+    //Add water
+    this.water = createWater(this.scene, 0);
+    this.scene.add(this.water);
+    this.loop.updatables.push(this.water);
 
     //Controls creative mode flying: 
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);

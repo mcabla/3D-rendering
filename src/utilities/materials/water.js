@@ -21,10 +21,9 @@ export function createWater(scene, height) {
             size: 0.1
         }
     );
-    
-    console.log(water.material); 
     water.material.uniforms['size'].value = 10; //*Can't set this in the constructor directly? 
     
+    //*Try to enable transparancy
     water.material.uniforms.alpha.value = 0.01;
     water.material.opacity = 0.01;
     water.material.uniforms['alpha'].value = 0.1;
