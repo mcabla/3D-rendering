@@ -49,15 +49,15 @@ export class ChunkManager {
         //*Iterate over all chunks that should be loaded at the moment
         let minX = Math.ceil(-this.viewDistance / 2 + this.camera.position.x / this.chunkSize) * this.chunkSize;
         let maxX = Math.ceil(this.viewDistance / 2 + this.camera.position.x / this.chunkSize) * this.chunkSize;
-        let minY = Math.ceil(-this.viewDistance / 2 + this.camera.position.y / this.chunkSize) * this.chunkSize;
-        let maxY = Math.ceil(this.viewDistance / 2 + this.camera.position.y / this.chunkSize) * this.chunkSize;
-        for (let y = minY; y < maxY; y += this.chunkSize)
+        let minZ = Math.ceil(-this.viewDistance / 2 + this.camera.position.z / this.chunkSize) * this.chunkSize;
+        let maxZ = Math.ceil(this.viewDistance / 2 + this.camera.position.z / this.chunkSize) * this.chunkSize;
+        for (let z = minZ; z < maxZ; z += this.chunkSize)
             for (let x = minX; x < maxX; x += this.chunkSize) {
                 //*Check if the chunk it already exists
                 let found = false;
                 let chunkToUpdate = null;
                 this.chunks.forEach(chunk => {
-                    if (chunk.position.x === x && chunk.position.y === y) {
+                    if (chunk.position.x === x && chunk.position.z === z) {
                         found = true;
                         chunkToUpdate = chunk;
                     }
@@ -68,7 +68,7 @@ export class ChunkManager {
                         camera: this.camera,
                         chunkSize: this.chunkSize,
                         x: x,
-                        y: y,
+                        z: z,
                         material: this.material,
                         baseSegments: this.baseSegments,
                         terrainGen: this.terrainGen,

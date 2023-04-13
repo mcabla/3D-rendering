@@ -35,7 +35,7 @@ export default class World {
       scene: this.scene,
       viewDistance: 7,
       chunkSize: cubeSize,
-      material: terrainTropic
+      material: grassBasic
     });
 
     this.loop.updatables.push(chunkManager);
@@ -62,8 +62,7 @@ function createCamera() {
     0.1, // near clipping plane 
     100, // far clipping plane
   );
-  camera.position.set(-10, 0, 2);
-  camera.up = new THREE.Vector3(0, 0, 1);
+  camera.position.set(-10, 2, 0);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   return camera;

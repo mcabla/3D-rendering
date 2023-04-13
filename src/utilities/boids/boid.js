@@ -62,8 +62,8 @@ export class Boid {
             //*Pull towards the center of the swarm
             //!HACKY
             push.x = - this.pos.x / 1000;
-            push.y = - this.pos.y / 1000;
-            push.z = Math.max(0, this.floorHeight - this.pos.z);
+            push.z = - this.pos.z / 1000;
+            push.y = Math.max(0, this.floorHeight - this.pos.y);
         } else {
             push.x = Math.min(0, this.cubeSize / 2 - this.pos.x) + Math.max(0, -this.pos.x - this.cubeSize / 2);
             push.y = Math.min(0, this.cubeSize / 2 - this.pos.y) + Math.max(0, -this.pos.y - this.cubeSize / 2);
@@ -99,7 +99,7 @@ export class Boid {
         this.vel.add(push.multiplyScalar(this.boidBehavior.attractForce));
 
         //*Pull towards tje ground
-        this.vel.z -= this.boidBehavior.gravity;
+        this.vel.y -= this.boidBehavior.gravity;
 
         //* Set speed to constant value
         this.vel.normalize().multiplyScalar(this.boidBehavior.constantVel);

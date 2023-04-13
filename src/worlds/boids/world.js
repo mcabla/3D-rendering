@@ -47,8 +47,7 @@ function createCamera() {
     0.1, // near clipping plane 
     100, // far clipping plane
   );
-  camera.position.set(-25, 0, 0);
-  camera.up = new THREE.Vector3(0, 0, 1);
+  camera.position.set(0, 0, 25);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
   return camera;
 }

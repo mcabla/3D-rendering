@@ -13,7 +13,7 @@ export class Chunk {
         camera,
         chunkSize,
         x,
-        y,
+        z,
         wireFrameOn = false,
         material = grassBasic,
         lod = 1,
@@ -32,7 +32,7 @@ export class Chunk {
         } }) {
         this.camera = camera;
         this.chunkSize = chunkSize;
-        this.position = new THREE.Vector3(x, y, 0);
+        this.position = new THREE.Vector3(x, 0, z);
         this.wireFrameOn = wireFrameOn;
         this.waterHeight = waterHeight;
         this.trees = treesCount > 0;
@@ -51,7 +51,7 @@ export class Chunk {
             this.obj.material.depthTest = true;
             // this.obj.frustumCulled = false;
         }
-        this.obj.position.set(x, y, 0);
+        this.obj.position.set(x, 0, z);
 
         this.lod = lod;
         this.baseSegments = baseSegments;
@@ -122,34 +122,36 @@ export class Chunk {
         let level = this.lod;
         let segments = this.baseSegments * level
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
+        geometry.rotateX(-Math.PI / 2);
         let perlin = new ImprovedNoise();
 
         const treePositions = [];
 
+        let z = this.position.z;
         let x = this.position.x;
-        let y = this.position.y;
         //x and y are world coords and xL and yL are coords between 0 and 1 within the chunk
         const l = segments + 1
-        for (let yL = 0; yL < l; yL++)
+        for (let zL = 0; zL < l; zL++)
             for (let xL = 0; xL < l; xL++) {
-                let index = 3 * yL * l + 3 * xL + 2;
+                let index = 3 * zL * l + 3 * xL + 1;
                 //*Stop gaps by lowering chunks that are further away into the ground a bit. Hacky but it works!
                 geometry.attributes.position.array[index] = level * 0.01;
                 for (let i = 0; i <= level; i++) {
                     const freq = this.terrainGen.baseFreq * (this.terrainGen.freqGain ** i);
                     const ampl = this.terrainGen.baseAmpl * (this.terrainGen.amplShrink ** i);
                     let xP = x / this.chunkSize * freq + xL / segments * freq;
-                    let yP = -y / this.chunkSize * freq + yL / segments * freq;
-                    let val = perlin.noise(xP, yP, 0) * ampl;
+                    let zP = z / this.chunkSize * freq + zL / segments * freq;
+                    let val = perlin.noise(xP, 0, zP) * ampl;
                     val = this.terrainGen.terrainFunc(i, val);
                     geometry.attributes.position.array[index] += val;
                 }
 
+                //! DOES THIS NEED TO CHANGE??
                 let terrainHeight = geometry.attributes.position.array[index];
                 // Add trees only when LOD is high enough and trees haven't been placed yet
                 if (this.trees && this.treeMesh && level < 3 && treePositions.length < this.treeCount && Math.trunc(terrainHeight * 10) / 10 > this.waterHeight + 0.07) {
                     const xP = x / this.chunkSize + xL / segments * 5000;
-                    const yP = -y / this.chunkSize + yL / segments * 5000;
+                    const yP = -z / this.chunkSize + zL / segments * 5000;
                     const noiseVal = perlin.noise(xP, yP, 0);
                     if (noiseVal > treeThreshold) {
                         //this.treeDummy.position.x = x + (xL / segments * 5000) * this.chunkSize;

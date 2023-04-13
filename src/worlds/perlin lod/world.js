@@ -20,11 +20,16 @@ export default class World {
 
     this.scene.background = new THREE.Color(0x151519);
 
+
+    //Hjälp
+    const axesHelper = new THREE.AxesHelper(5);
+    this.scene.add(axesHelper);
+
     this.chunk = new Chunk({
       camera: this.camera,
       chunkSize: cubeSize,
       x: 0,
-      y: 0,
+      z: 0,
       wireFrameOn: true
     });
 
@@ -76,7 +81,6 @@ function createCamera() {
     100, // far clipping plane
   );
   camera.position.set(0, 10, 10);
-  camera.up = new THREE.Vector3(0, 0, 1);
   camera.lookAt(new THREE.Vector3());
   return camera;
 }
