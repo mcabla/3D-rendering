@@ -83,7 +83,7 @@ export const getFern = () => {
         'F': '[+F][-F][*F][/F]',
     };
     const branchAngle = Math.PI / 4; // angle between branches
-    const branchLength = 10; // length of each branch
+    const branchLength = 1; // length of each branch
     const iterations =3; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
