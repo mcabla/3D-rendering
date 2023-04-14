@@ -228,8 +228,8 @@ export const getTree = (rules, branchAngle, branchLength, iterations, leafMesh =
         branchGroup.add(branch);
 
         if (filteredBranches[i].leaves) {
-            const leaf = leafMesh.clone();
             for (let j = 0; j < 4; ++j) {
+                const leaf = leafMesh.clone();
                 leaf.rotation.x = Math.floor(Math.random() * 20 - 10);
                 leaf.rotation.x = Math.floor(Math.random() * 20 - 10);
                 leaf.rotation.z = Math.floor(Math.random() * 20 - 10);
