@@ -23,7 +23,7 @@ export const getMapleTree = () => {
     const textureLoader = new THREE.TextureLoader();
     const leafTexture = textureLoader.load('assets/images/vegetation_leaf_maple_01.png');
 
-    const leafGeometry = new THREE.PlaneGeometry(0.05, 0.05);
+    const leafGeometry = new THREE.PlaneGeometry(0.1, 0.1);
     const leafMaterial = new THREE.MeshBasicMaterial({
         map: leafTexture,
         side: THREE.DoubleSide,
@@ -220,7 +220,7 @@ export const getTree = (rules, branchAngle, branchLength, iterations, leafMesh =
 
     const branchGroup = new THREE.Group();
     const leafGroup = new THREE.Group();
-    for (let i = 0; i < filteredBranches.length; i++) {
+    for (let i = 0; i < filteredBranches.length; ++i) {
         const branch = group.clone();
         branch.position.copy(filteredBranches[i].position);
         const destination = new THREE.Vector3().copy(filteredBranches[i].direction).multiplyScalar(branchLength).add(branch.position);
@@ -229,9 +229,14 @@ export const getTree = (rules, branchAngle, branchLength, iterations, leafMesh =
 
         if (filteredBranches[i].leaves) {
             const leaf = leafMesh.clone();
-            leaf.position.copy(destination);
-            // leaf.rotation.copy(filteredBranches[i].direction);
-            leafGroup.add(leaf);
+            for (let j = 0; j < 4; ++j) {
+                leaf.rotation.x = Math.floor(Math.random() * 20 - 10);
+                leaf.rotation.x = Math.floor(Math.random() * 20 - 10);
+                leaf.rotation.z = Math.floor(Math.random() * 20 - 10);
+                leaf.position.copy(destination.sub(filteredBranches[i].position).multiplyScalar(1.1).add(filteredBranches[i].position));
+                // leaf.rotation.copy(filteredBranches[i].direction);
+                leafGroup.add(leaf);
+            }
         }
     }
 
