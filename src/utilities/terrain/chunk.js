@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 import { grassBasic } from '../materials/grassBasic.js';
+import {getSpruce} from "../models/spruce.js";
+import {getCherryBlossomTree, getMapleTree} from "../trees/tree.js";
 
-const amplitude = 2.5
-const freqGain = 3;
-const amplShrink = 0.2;
-const baseSegments = 20;
+// const m = getMapleTree();
+const m = getCherryBlossomTree();
 
 
 export class Chunk {
@@ -37,6 +37,7 @@ export class Chunk {
         this.waterHeight = waterHeight;
         this.trees = treesCount > 0;
         this.treesCount = treesCount;
+        this.treePositions = [];
 
         let geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
         if (wireFrameOn) {
@@ -62,10 +63,10 @@ export class Chunk {
             this.treeDummy = new THREE.Object3D();
             const sphereGeometry = new THREE.SphereGeometry(0.05, 1, 1);
             const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            this.treeMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, treeCount);
+            this.treeMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, this.treesCount);
             this.treeDummy.position.z = -10;
             this.treeDummy.updateMatrix();
-            for (let i = 0; i < treeCount; i++) {
+            for (let i = 0; i < this.treesCount; i++) {
                 this.treeMesh.setMatrixAt(i, this.treeDummy.matrix);
             }
             this.obj.add(this.treeMesh);
@@ -124,14 +125,13 @@ export class Chunk {
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
         geometry.rotateX(-Math.PI / 2);
         let perlin = new ImprovedNoise();
-
-        const treePositions = [];
+        const oldTreeCount = 0;
 
         let z = this.position.z;
         let x = this.position.x;
         //x and y are world coords and xL and yL are coords between 0 and 1 within the chunk
         const l = segments + 1
-        for (let zL = 0; zL < l; zL++)
+        for (let zL = 0; zL < l; zL++) {
             for (let xL = 0; xL < l; xL++) {
                 let index = 3 * zL * l + 3 * xL + 1;
                 //*Stop gaps by lowering chunks that are further away into the ground a bit. Hacky but it works!
@@ -149,22 +149,30 @@ export class Chunk {
                 //! DOES THIS NEED TO CHANGE??
                 let terrainHeight = geometry.attributes.position.array[index];
                 // Add trees only when LOD is high enough and trees haven't been placed yet
-                if (this.trees && this.treeMesh && level < 3 && treePositions.length < this.treeCount && Math.trunc(terrainHeight * 10) / 10 > this.waterHeight + 0.07) {
-                    const xP = x / this.chunkSize + xL / segments * 5000;
-                    const zP = -z / this.chunkSize + zL / segments * 5000;
-                    const noiseVal = perlin.noise(xP, 0, zP);
-                    if (noiseVal > treeThreshold) {
-                        //this.treeDummy.position.x = x + (xL / segments * 5000) * this.chunkSize;
-                        // this.treeDummy.position.y = y + (yL / segments * 5000) * this.chunkSize;
-                        //this.treeDummy.position.z = terrainHeight;
-                        //this.treeDummy.updateMatrix();
-                        // this.treeMesh.setMatrixAt(treePositions.length, this.treeDummy.matrix);
-                        //treePositions.push({ x: xL, y: yL });
+                if (this.trees && this.treeMesh && level >= 5 && terrainHeight > this.waterHeight + 0.09 && this.treePositions.length < this.treesCount) {
+                    const freq = this.terrainGen.baseFreq * (this.terrainGen.freqGain ** 10) * 50;
+                    const ampl = this.terrainGen.baseAmpl * (this.terrainGen.amplShrink ** 10) * 600000;
+                    const xP = x / this.chunkSize * freq + xL / segments * freq;
+                    const zP = z / this.chunkSize * freq + zL / segments * freq;
+                    const noiseVal = perlin.noise(xP, 0, zP) * ampl;
+                    if (noiseVal > 0.08) {
+                        this.treeDummy.position.x = geometry.attributes.position.array[index - 1];
+                        this.treeDummy.position.z = geometry.attributes.position.array[index + 1];
+                        this.treeDummy.position.y = terrainHeight;
+                        this.treeDummy.updateMatrix();
+                        this.treeMesh.setMatrixAt(this.treePositions.length, this.treeDummy.matrix);
+                        this.treePositions.push({x: xL, z: zL, y: terrainHeight});
+                        /*const maple = m.clone();
+                        maple.position.x = geometry.attributes.position.array[index - 1];
+                        maple.position.z = geometry.attributes.position.array[index + 1];
+                        maple.position.y = terrainHeight;
+                        this.obj.add(maple);*/
                     }
                 }
             }
+        }
 
-        if (this.trees && level < 3) {
+        if (this.trees && oldTreeCount < this.treePositions.length) {
             this.treeMesh.instanceMatrix.needsUpdate = true;
         }
 

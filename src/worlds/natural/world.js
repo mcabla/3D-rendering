@@ -82,7 +82,7 @@ export default class World {
       baseFreq: .5,
       wireFrame: false,
       waterHeight: waterHeight,
-      trees: true
+      treesCount: 100
     });
     this.loop.updatables.push(chunkManager);
     terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.01;

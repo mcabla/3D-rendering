@@ -14,7 +14,7 @@ export class ChunkManager {
         terrainGen,
         baseFreq = 1,
         waterHeight = 0.0,
-        trees = false
+                    treesCount = 0
     }) {
         this.camera = camera;
         this.cameraPos = new THREE.Vector3();
@@ -27,7 +27,7 @@ export class ChunkManager {
         this.terrainGen = terrainGen;
         this.baseFreq = baseFreq;
         this.waterHeight = waterHeight;
-        this.trees = trees;
+        this.treesCount = treesCount;
         this.chunks = new Set();
 
         if (this.viewDistance % 2 === 0 || this.viewDistance <= 0)
@@ -75,7 +75,7 @@ export class ChunkManager {
                         wireFrameOn: this.wireFrame,
                         baseFreq: this.baseFreq,
                         waterHeight: this.waterHeight,
-                        trees: this.trees
+                        treesCount: this.treesCount
                     });
                     this.scene.add(chunkToUpdate.getMesh());
                     this.chunks.add(chunkToUpdate);
