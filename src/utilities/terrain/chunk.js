@@ -156,12 +156,18 @@ export class Chunk {
                     const zP = z / this.chunkSize * freq + zL / segments * freq;
                     const noiseVal = perlin.noise(xP, 0, zP) * ampl;
                     if (noiseVal > 0.08) {
-                        this.treeDummy.position.x = geometry.attributes.position.array[index - 1];
-                        this.treeDummy.position.z = geometry.attributes.position.array[index + 1];
+                        const currentX = geometry.attributes.position.array[index - 1];
+                        const currentZ = geometry.attributes.position.array[index + 1];
+                        this.treeDummy.position.x = currentX;
+                        this.treeDummy.position.z = currentZ;
                         this.treeDummy.position.y = terrainHeight;
                         this.treeDummy.updateMatrix();
-                        this.treeMesh.setMatrixAt(this.treePositions.length, this.treeDummy.matrix);
-                        this.treePositions.push({x: xL, z: zL, y: terrainHeight});
+
+                        const existingTree = this.treePositions.some((obj) => obj.x === currentX && obj.z === currentZ);
+                        const i = existingTree ? existingTree.index : this.treePositions.length;
+                        this.treePositions.push({x: xL, z: zL, index: this.treePositions.length});
+                        this.treeMesh.setMatrixAt(i, this.treeDummy.matrix);
+
                         /*const maple = m.clone();
                         maple.position.x = geometry.attributes.position.array[index - 1];
                         maple.position.z = geometry.attributes.position.array[index + 1];
@@ -186,4 +192,8 @@ export class Chunk {
         }
 
     }
+}
+
+function isDuplicate(obj, index, arr) {
+    return arr.findIndex(o => o.x === obj.x && o.z === obj.z) !== index;
 }
