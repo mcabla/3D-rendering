@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { createLights } from './lights.js';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {exportGLTF} from "../../utilities/exporter.js";
+import {exportGLTF} from "../../utilities/models/exporter.js";
 import {
   getCherryBlossomTree, getFern,
   getFlower,
@@ -39,37 +39,30 @@ export default class World {
     this.scene.background = new THREE.Color(0x151519);
 
     const fern = getFern();
-    fern.position.x = -100;
-    fern.position.y = -50;
+    fern.position.x = -1;
     this.scene.add(fern);
 
     const mapleTree = getMapleTree();
-    mapleTree.position.x = -50;
-    mapleTree.position.y = -50;
+    mapleTree.position.x = -0.5;
     this.scene.add(mapleTree);
 
     const flower = getFlower();
-    flower.position.y = -50;
     this.scene.add(flower);
 
     const spruceTree = getSpruce();
-    spruceTree.position.x = 50;
-    spruceTree.position.y = -50;
+    spruceTree.position.x = .5;
     this.scene.add(spruceTree);
 
     const palmTree = getPalmTree();
-    palmTree.position.x = 100;
-    palmTree.position.y = -50;
+    palmTree.position.x = 1;
     this.scene.add(palmTree);
 
     const weepingWillowTree = getWeepingWillowTree();
-    weepingWillowTree.position.x = 150;
-    weepingWillowTree.position.y = -50;
+    weepingWillowTree.position.x = 1.5;
     this.scene.add(weepingWillowTree);
 
     const cherryBlossomTree = getCherryBlossomTree();
-    cherryBlossomTree.position.x = 200;
-    cherryBlossomTree.position.y = -50;
+    cherryBlossomTree.position.x = 2;
     this.scene.add(cherryBlossomTree);
 
     this.light = createLights();
@@ -79,7 +72,7 @@ export default class World {
     const controls = new OrbitControls( this.camera, main.renderer.domElement );
     controls.maxPolarAngle = Math.PI * 0.495;
     controls.target.set( 0, 1, 0 );
-    controls.minDistance = 4.0;
+    controls.minDistance = 0.0;
     controls.maxDistance = 2000.0;
     controls.update();
 
@@ -113,7 +106,7 @@ function createCamera() {
     0.1, // near clipping plane
     1000, // far clipping plane
   );
-  camera.position.set(0, 0, 100);
+  camera.position.set(0, -0.5, 1);
   return camera;
 }
 
@@ -122,7 +115,43 @@ function exportFern() {
 }
 
 function exportMaple() {
-  exportGLTF( getMapleTree(),'maple', params );
+  const texturesToLoad = {
+    'vegetation_leaf_maple_01': {
+      path: 'assets/images/vegetation_leaf_maple_01.png',
+      mimeType: 'image/png'
+    },
+    'vegetation_tree_bark_40': {
+      path: 'assets/images/vegetation_tree_bark_40.png',
+      mimeType: 'image/png'
+    },
+    // add more textures here if needed
+  };
+  const loadedTextures = {};
+  const loader = new THREE.FileLoader();
+  Promise.all(texturesToLoad.keys().map((textureInfoName) => {
+    const textureInfo = texturesToLoad[textureInfoName];
+    return new Promise((resolve, reject) => {
+      loader.load(textureInfo.path, (textureData) => {
+        loadedTextures[textureInfoName] = textureData;
+        resolve();
+      }, null, reject);
+    });
+  })).then(() => {
+    const options = {
+      binary: true,
+      includeCustomExtensions: true,
+      embedImages: Object.keys(loadedTextures).map((textureName) => {
+        return {
+          mimeType: texturesToLoad[textureName].mimeType,
+          buffer: loadedTextures[textureName],
+          name: textureName,
+        };
+      })
+    };
+      exportGLTF( getMapleTree(),'maple', params, options );
+  }).catch((error) => {
+    console.error(error);
+  });
 }
 
 

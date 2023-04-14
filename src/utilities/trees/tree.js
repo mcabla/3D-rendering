@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-const defaultLeafGeometry = new THREE.SphereGeometry(2, 8, 4);
+const defaultLeafGeometry = new THREE.SphereGeometry(.01, 8, 4);
 const defaultLeafMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
 const defaultLeafMesh = new THREE.Mesh(defaultLeafGeometry, defaultLeafMaterial);
 
@@ -17,13 +17,13 @@ export const getMapleTree = () => {
         'C': 'EF[+C][-C][/C][*C]^^C',
     };
     const branchAngle = Math.PI / 4; // angle between branches
-    const branchLength = 10; // length of each branch
+    const branchLength = 0.040; // length of each branch
     const iterations = 5; // number of times to apply the rules
 
     const textureLoader = new THREE.TextureLoader();
     const leafTexture = textureLoader.load('assets/images/vegetation_leaf_maple_01.png');
 
-    const leafGeometry = new THREE.PlaneGeometry(20, 20);
+    const leafGeometry = new THREE.PlaneGeometry(0.05, 0.05);
     const leafMaterial = new THREE.MeshBasicMaterial({
         map: leafTexture,
         side: THREE.DoubleSide,
@@ -45,7 +45,7 @@ export const getPalmTree = () => {
         'F': '[+F][-F]F[*F][/F]F', // Generated with chatGPT
     };
     const branchAngle = Math.PI / 3; // angle between branches
-    const branchLength = 10; // length of each branch
+    const branchLength = 0.040; // length of each branch
     const iterations =2; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
@@ -56,7 +56,7 @@ export const getWeepingWillowTree = () => {
         'F': '[+F][-F][*F]F', // Generated with chatGPT
     };
     const branchAngle = Math.PI / 4; // angle between branches
-    const branchLength = 10; // length of each branch
+    const branchLength = 0.040; // length of each branch
     const iterations =5; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
@@ -67,7 +67,7 @@ export const getCherryBlossomTree = () => {
         'F': 'E[+F][/-F][*F][+F][*F][*F][-F][/*F]', // Generated with chatGPT
     };
     const branchAngle = Math.PI / 4; // angle between branches
-    const branchLength = 10; // length of each branch
+    const branchLength = 0.040; // length of each branch
     const iterations =4; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
@@ -84,11 +84,10 @@ export const getSpruce = () => {
         'U': 'U/F',
     };
     const branchAngle = Math.PI / 16; // angle between branches
-    const branchLength = 10; // length of each branch
+    const branchLength = 0.040; // length of each branch
     const iterations =6; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
-
 
 export const getFlower = () => {
     // Define the L-system rules
@@ -96,11 +95,10 @@ export const getFlower = () => {
         'A': '[+F][-F][/F][*F]F',
     };
     const branchAngle = Math.PI / 8; // angle between branches
-    const branchLength = 10; // length of each branch
+    const branchLength = 0.040; // length of each branch
     const iterations =1; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
-
 
 export const getFern = () => {
     // Define the L-system rules
@@ -109,7 +107,7 @@ export const getFern = () => {
         'F': '[+F][-F][*F][/F]',
     };
     const branchAngle = Math.PI / 4; // angle between branches
-    const branchLength = 1; // length of each branch
+    const branchLength = 0.004; // length of each branch
     const iterations =3; // number of times to apply the rules
     return getTree(rules, branchAngle, branchLength, iterations);
 }
@@ -212,7 +210,7 @@ export const getTree = (rules, branchAngle, branchLength, iterations, leafMesh =
     // console.log(stack, branches, filteredBranches);
 
     // Create the Three.js objects for the tree
-    const trunkGeometry = new THREE.CylinderGeometry(1, 1, branchLength, 4, 1, false);
+    const trunkGeometry = new THREE.CylinderGeometry(.005, .005, branchLength, 3, 1, false);
     const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
     const group = new THREE.Group();
     group.add(trunk);
