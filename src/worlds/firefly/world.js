@@ -70,4 +70,3 @@ function createCamera() {
 
 
 // Function to handle mouse movement
-
