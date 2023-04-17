@@ -59,10 +59,9 @@ export class Boid {
         let push = new THREE.Vector3();
         if (this.floorMode) {
             //In floor mode we also want to weakly pull towards the center or the boids will just keep going forever
-            //*Pull towards the center of the swarm
             //!HACKY
-            push.x = - this.pos.x / 1000;
-            push.z = - this.pos.z / 1000;
+            push.x = (this.camera.position.x - this.pos.x) / 1000;
+            push.z = (this.camera.position.z - this.pos.z) / 1000;
             push.y = Math.max(0, this.floorHeight - this.pos.y);
         } else {
             push.x = Math.min(0, this.cubeSize / 2 - this.pos.x) + Math.max(0, -this.pos.x - this.cubeSize / 2);
