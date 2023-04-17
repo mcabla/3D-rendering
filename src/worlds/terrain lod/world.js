@@ -7,6 +7,7 @@ import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 import { createWater } from '../../utilities/materials/water.js';
 
+import { CloudManager } from '../../utilities/clouds/clouds.js';
 
 //Inspiration: 
 
@@ -24,6 +25,11 @@ export default class World {
     //Add light
     this.light = createLights();
     this.scene.add(this.light);
+    
+    //Add Clouds
+    this.cloudManager = new CloudManager({ camera: this.camera, cloudLevel: 6,  });
+    this.scene.add(this.cloudManager.getClouds());
+    this.loop.updatables.push(this.cloudManager);
 
     //Add chunks
     const terrainGen = {

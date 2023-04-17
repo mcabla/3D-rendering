@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { materialFireflies2 } from '../../utilities/materials/fireflies2.js';
+import { materialParticle } from '../../utilities/materials/particle.js';
 
 //*For the most realistic looking results the amount should not be bigger than 5x the cloudsize
 export function createFireflies({ amount = 100, sizeScale = 1, cloudSize = 20 }) {
@@ -19,7 +19,7 @@ export function createFireflies({ amount = 100, sizeScale = 1, cloudSize = 20 })
     geometry.setAttribute("id", new THREE.Float16BufferAttribute(id, 1));
     geometry.setAttribute("size", new THREE.Float32BufferAttribute(sizes, 1).setUsage(THREE.DynamicDrawUsage));
 
-    const pointManager = new THREE.Points(geometry, materialFireflies2);
+    const pointManager = new THREE.Points(geometry, materialParticle    );
     const p = new THREE.Vector3();//Help vector
     pointManager.tick = (delta) => {
         const time = Date.now();
