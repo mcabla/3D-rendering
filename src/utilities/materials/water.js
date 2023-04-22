@@ -15,21 +15,17 @@ export function createWater(scene, height) {
             sunColor: 0xffffff,
             waterColor: 0x001e0f,
             distortionScale: 0.1,
-            fog: scene.fog !== undefined,
-            alpha: 0.1,
-            transparent: true,
-            size: 0.1
+            fog: scene.fog !== undefined
         }
     );
-    water.material.uniforms['size'].value = 10; //*Can't set this in the constructor directly? 
-    
-    //*Try to enable transparancy
-    water.material.uniforms.alpha.value = 0.01;
-    water.material.opacity = 0.01;
-    water.material.uniforms['alpha'].value = 0.1;
-    // water.material.uniforms['transparent'].value = true;
-
+    water.material.uniforms.size.value = 10; //*Can't set this in the constructor directly? 
     water.rotation.x = - Math.PI / 2;
+
+    //*Enable transparancy
+    water.material.uniforms.alpha.value = 0.85;
+    water.material.transparent = true;
+    
+    
     water.tick = (delta) => {
         water.material.uniforms['time'].value += 0.5 * delta;
     };

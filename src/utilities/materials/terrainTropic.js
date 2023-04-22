@@ -78,7 +78,7 @@ export const terrainTropic = new THREE.ShaderMaterial({
         varying vec3 vBitangent;
         
         void main() {            
-            float angle = dot(normalize(vNormal), vec3(0.0, 0.0, 1.0));
+            float angle = dot(normalize(vNormal), vec3(0.0, 1.0, 0.0));
             
             //mod(vUv.x, 4.0)*2.0
             float randAngle = ceil(mod(vUv.x*20.0, 4.0))*0.785398163397;
@@ -88,7 +88,7 @@ export const terrainTropic = new THREE.ShaderMaterial({
             vec4 grassTexel = texture2D(grassTexture,  rotatedUv * 20.0);
             vec4 dirtTexel = texture2D(dirtTexture, vUv * 20.0);       
             
-            vec4 steepnessTexel = mix(grassTexel, stoneTexel, smoothstep(.5, 0.8, angle));
+            vec4 steepnessTexel = mix(stoneTexel, grassTexel, smoothstep(.5, .9, angle));
             
             vec4 texel = mix(dirtTexel,steepnessTexel, smoothstep(lowestGrass, highestSand, vPosition.y));
             
