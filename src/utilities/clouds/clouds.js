@@ -9,7 +9,7 @@ export class CloudManager {
     constructor({ camera, cloudLevel = 3, particleCount = 10000, cloudfieldSize = 50, perlinFreq = 0.1 }) {
         this.cameraPos = camera.position;
         this.cloudLevel = cloudLevel;
-        this.particleCount = particleCount;//Needs to be a sqare
+        this.particleCount = particleCount;//Needs to have an integer square root
         this.cloudfieldSize = cloudfieldSize;
         this.perlinFreq = perlinFreq;
 
