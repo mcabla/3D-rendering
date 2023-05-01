@@ -58,30 +58,13 @@ export class Chunk {
         this.baseSegments = baseSegments;
         this.terrainGen = terrainGen;
 
-
-        if (this.trees) {
-            this.treeDummy = new THREE.Object3D();
-            const sphereGeometry = new THREE.SphereGeometry(0.05, 1, 1);
-            const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            this.treeMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, this.treesCount);
-            this.treeDummy.position.z = -10;
-            this.treeDummy.updateMatrix();
-            for (let i = 0; i < this.treesCount; i++) {
-                this.treeMesh.setMatrixAt(i, this.treeDummy.matrix);
-            }
-            this.obj.add(this.treeMesh);
-            this.treeMesh.instanceMatrix.needsUpdate = true;
-        }
-
         this.updateLOD();
     }
-
 
     //Return the mesh
     getMesh() {
         return this.obj;
     }
-
 
     //Calculate the LOD and generate terrain again if required.
     updateLOD() {
@@ -120,17 +103,17 @@ export class Chunk {
 
     //Generate the terrain for this chunk again using the new LOD
     generateTerrain() {
+        let shouldSpawnTrees = false;
         let level = this.lod;
         let segments = this.baseSegments * level
         const geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, segments, segments);
         geometry.rotateX(-Math.PI / 2);
         let perlin = new ImprovedNoise();
-        const oldTreeCount = 0;
 
         let z = this.position.z;
         let x = this.position.x;
         //x and y are world coords and xL and yL are coords between 0 and 1 within the chunk
-        const l = segments + 1
+        const l = segments + 1;
         for (let zL = 0; zL < l; zL++) {
             for (let xL = 0; xL < l; xL++) {
                 let index = 3 * zL * l + 3 * xL + 1;
@@ -146,10 +129,9 @@ export class Chunk {
                     geometry.attributes.position.array[index] += val;
                 }
 
-                //! DOES THIS NEED TO CHANGE??
                 let terrainHeight = geometry.attributes.position.array[index];
                 // Add trees only when LOD is high enough and trees haven't been placed yet
-                if (this.trees && this.treeMesh && level >= 5 && terrainHeight > this.waterHeight + 0.09 && this.treePositions.length < this.treesCount) {
+                if (this.trees && level >= 5 && terrainHeight > this.waterHeight + 0.09 && this.treePositions.length < this.treesCount) {
                     const freq = this.terrainGen.baseFreq * (this.terrainGen.freqGain ** 10) * 50;
                     const ampl = this.terrainGen.baseAmpl * (this.terrainGen.amplShrink ** 10) * 600000;
                     const xP = x / this.chunkSize * freq + xL / segments * freq;
@@ -158,28 +140,19 @@ export class Chunk {
                     if (noiseVal > 0.08) {
                         const currentX = geometry.attributes.position.array[index - 1];
                         const currentZ = geometry.attributes.position.array[index + 1];
-                        this.treeDummy.position.x = currentX;
-                        this.treeDummy.position.z = currentZ;
-                        this.treeDummy.position.y = terrainHeight;
-                        this.treeDummy.updateMatrix();
 
                         const existingTree = this.treePositions.some((obj) => obj.x === currentX && obj.z === currentZ);
-                        const i = existingTree ? existingTree.index : this.treePositions.length;
-                        this.treePositions.push({x: xL, z: zL, index: this.treePositions.length});
-                        this.treeMesh.setMatrixAt(i, this.treeDummy.matrix);
-
-                        /*const maple = m.clone();
-                        maple.position.x = geometry.attributes.position.array[index - 1];
-                        maple.position.z = geometry.attributes.position.array[index + 1];
-                        maple.position.y = terrainHeight;
-                        this.obj.add(maple);*/
+                        if (!existingTree) {
+                            this.treePositions.push({x: currentX, y: terrainHeight,  z: currentZ, index: this.treePositions.length});
+                            shouldSpawnTrees = true;
+                        }
                     }
                 }
             }
-        }
 
-        if (this.trees && oldTreeCount < this.treePositions.length) {
-            this.treeMesh.instanceMatrix.needsUpdate = true;
+            if (shouldSpawnTrees) {
+                this.placeTrees();
+            }
         }
 
         this.obj.geometry.dispose();
@@ -191,6 +164,35 @@ export class Chunk {
             this.obj.geometry = geometry;
         }
 
+    }
+
+    placeTrees() {
+        if (this.treePositions.length < 10) {
+            return;
+        }
+
+        const oldMesh = this.treeMesh;
+
+        const sphereGeometry = new THREE.SphereGeometry(0.05, 1, 1);
+        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        this.treeMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, this.treePositions.length);
+
+        const treeDummy = new THREE.Object3D();
+        this.treePositions.forEach((pos, i) => {
+            treeDummy.position.x = pos.x;
+            treeDummy.position.y = pos.y;
+            treeDummy.position.z = pos.z;
+            treeDummy.updateMatrix();
+            this.treeMesh.setMatrixAt(i, treeDummy.matrix);
+            // console.log(treeDummy.position)
+        });
+
+        if (oldMesh){
+            this.obj.remove(oldMesh);
+        }
+
+        this.obj.add(this.treeMesh);
+        this.treeMesh.instanceMatrix.needsUpdate = true;
     }
 }
 
