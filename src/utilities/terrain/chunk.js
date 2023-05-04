@@ -46,7 +46,7 @@ export class Chunk {
             // Load a glTF resource
             loader.load(
                 // resource URL
-                '/assets/models/cherry.glb',
+                'assets/models/cherry.glb',
                 // called when the resource is loaded
                 ( model ) => {
                     treeModel = model.scene.children[0].children[0].children[0];
@@ -223,7 +223,7 @@ export class Chunk {
         treeDummy.rotation.z =  -Math.PI;
         //treeDummy.rotation.y =  -Math.PI;// / 2; //-Math.PI / 2;
         //treeDummy.rotation.z = Math.PI;
-        treeDummy.scale.set(2,2,2);
+        treeDummy.scale.set(2,2,2);v
         this.treePositions.forEach((pos, i) => {
             treeDummy.position.x = pos.x;
             treeDummy.position.y = pos.y;
