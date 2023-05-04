@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { grassBasic } from '../materials/grassBasic.js';
-import {getSpruce} from "../models/spruce.js";
-import {getCherryBlossomTree, getMapleTree} from "../trees/tree.js";
 
-// const m = getMapleTree();
-const m = getCherryBlossomTree();
+let treeModel = null;
 
+const texture = new THREE.TextureLoader().load( "assets/images/cherry-bark_diffuseOriginal.jpg" );
+texture.wrapS = THREE.RepeatWrapping;
+texture.wrapT = THREE.RepeatWrapping;
+texture.repeat.set( 1, 1 );
 
 export class Chunk {
     constructor({
@@ -38,6 +40,32 @@ export class Chunk {
         this.trees = treesCount > 0;
         this.treesCount = treesCount;
         this.treePositions = [];
+
+        if (this.trees && !treeModel) {
+            const loader = new GLTFLoader();
+            // Load a glTF resource
+            loader.load(
+                // resource URL
+                '/assets/models/cherry.glb',
+                // called when the resource is loaded
+                ( model ) => {
+                    treeModel = model.scene.children[0].children[0].children[0];
+                    this.placeTrees();
+                },
+                // called while loading is progressing
+                function ( xhr ) {
+
+                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+                },
+                // called when loading has errors
+                function ( error ) {
+
+                    console.log( 'An error happened' );
+
+                }
+            );
+        }
 
         let geometry = new THREE.PlaneGeometry(this.chunkSize, this.chunkSize, baseSegments, baseSegments);
         if (wireFrameOn) {
@@ -76,9 +104,13 @@ export class Chunk {
         this.lod = lod;
         //Changes are required.
         this.generateTerrain();
-        if (this.trees && this.treeMesh) {
-            this.treeMesh.instanceMatrix.needsUpdate = true;
-            // this.treeMesh.computeBoundingSphere();
+        if (this.trees) {
+            if (this.treeLeavesMesh) {
+                this.treeLeavesMesh.instanceMatrix.needsUpdate = true;
+            }
+            if (this.treeTrunkMesh) {
+                this.treeTrunkMesh.instanceMatrix.needsUpdate = true;
+            }
         }
         return true;
     }
@@ -171,28 +203,49 @@ export class Chunk {
             return;
         }
 
-        const oldMesh = this.treeMesh;
+        const oldLeavesMesh = this.treeLeavesMesh;
+        const oldTrunkMesh = this.treeTrunkMesh;
 
-        const sphereGeometry = new THREE.SphereGeometry(0.05, 1, 1);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        this.treeMesh = new THREE.InstancedMesh(sphereGeometry, sphereMaterial, this.treePositions.length);
+        const leavesGeometry = treeModel ? treeModel.children[0].geometry: new THREE.SphereGeometry(0.05, 1, 1);
+        const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0xef9ac4 });
+        this.treeLeavesMesh = new THREE.InstancedMesh(leavesGeometry, leavesMaterial, this.treePositions.length);
+        //this.treeLeavesMesh.castShadow = true;
+        //this.treeLeavesMesh.recieveShadow = true;
+        const trunkGeometry = treeModel ? treeModel.children[1].geometry: new THREE.SphereGeometry(0.05, 1, 1);
+        const trunkMaterial = new THREE.MeshPhongMaterial({ map: texture });
+        this.treeTrunkMesh = new THREE.InstancedMesh(trunkGeometry, trunkMaterial, this.treePositions.length);
+        //this.treeLeavesMesh.castShadow = true;
+        // this.treeLeavesMesh.recieveShadow = true;
 
         const treeDummy = new THREE.Object3D();
+        treeDummy.rotation.x =  -Math.PI/2;
+        treeDummy.rotation.y =  -Math.PI/4;
+        treeDummy.rotation.z =  -Math.PI;
+        //treeDummy.rotation.y =  -Math.PI;// / 2; //-Math.PI / 2;
+        //treeDummy.rotation.z = Math.PI;
+        treeDummy.scale.set(2,2,2);
         this.treePositions.forEach((pos, i) => {
             treeDummy.position.x = pos.x;
             treeDummy.position.y = pos.y;
             treeDummy.position.z = pos.z;
             treeDummy.updateMatrix();
-            this.treeMesh.setMatrixAt(i, treeDummy.matrix);
+            this.treeLeavesMesh.setMatrixAt(i, treeDummy.matrix);
+            this.treeTrunkMesh.setMatrixAt(i, treeDummy.matrix);
             // console.log(treeDummy.position)
         });
 
-        if (oldMesh){
-            this.obj.remove(oldMesh);
+        if (oldLeavesMesh){
+            this.obj.remove(oldLeavesMesh);
         }
 
-        this.obj.add(this.treeMesh);
-        this.treeMesh.instanceMatrix.needsUpdate = true;
+        if (oldTrunkMesh){
+            this.obj.remove(oldTrunkMesh);
+        }
+
+        this.obj.add(this.treeLeavesMesh);
+        this.obj.add(this.treeTrunkMesh);
+        this.treeLeavesMesh.instanceMatrix.needsUpdate = true;
+        this.treeTrunkMesh.instanceMatrix.needsUpdate = true;
     }
 }
 
