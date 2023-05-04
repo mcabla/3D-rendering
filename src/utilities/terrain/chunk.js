@@ -223,7 +223,7 @@ export class Chunk {
         treeDummy.rotation.z =  -Math.PI;
         //treeDummy.rotation.y =  -Math.PI;// / 2; //-Math.PI / 2;
         //treeDummy.rotation.z = Math.PI;
-        treeDummy.scale.set(2,2,2);v
+        treeDummy.scale.set(2,2,2);
         this.treePositions.forEach((pos, i) => {
             treeDummy.position.x = pos.x;
             treeDummy.position.y = pos.y;
