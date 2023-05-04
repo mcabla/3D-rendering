@@ -29,7 +29,7 @@ export const materialParticle = new THREE.ShaderMaterial({
                 vSize =  2.0*(4.0*vId - 0.1*mvPosition.y);//smoke
             }
             else{
-                vSize =  2.0*(4.0*vId - 0.2*mvPosition.y);//fire        
+                vSize =  2.0*(4.0*vId - 0.2 *mvPosition.y);//fire        
             }
             gl_PointSize = vSize * (100.0 / -mvPosition.z); 
             gl_Position = projectionMatrix * mvPosition;
@@ -43,7 +43,7 @@ export const materialParticle = new THREE.ShaderMaterial({
         uniform float fireToSmokeRatio; 
 
         void main() {
-            if(vSize < 0.01) discard; 
+            if(vSize < 0.00001) discard; 
             
             vec4 color; 
             if(vId>fireToSmokeRatio){
