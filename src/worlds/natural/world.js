@@ -3,9 +3,10 @@ import { createLights } from './lights.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
 import { ChunkManager } from '../../utilities/terrain/chunkManager.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
-import { createWater } from './water.js';
+import { createWater } from '../../utilities/materials/water.js';
 import {BoidManager} from "../../utilities/boids/boidManager.js";
 import { Sky } from 'three/addons/objects/Sky.js';
+import { CloudManager } from '../../utilities/clouds/clouds.js';
 
 //Inspiration:
 const waterHeight = 0.0;
@@ -50,9 +51,15 @@ export default class World {
     this.sun = new THREE.Vector3();
 
     //Add water
-    this.water = createWater(this.scene, waterHeight);
+    this.water = createWater(this.scene, 0);
     this.scene.add(this.water);
     this.loop.updatables.push(this.water);
+
+    //Add clouds
+    const cloudFieldSize = 50;
+    this.cloudManager = new CloudManager({ camera: this.camera, cloudLevel: 6, cloudfieldSize: cloudFieldSize });
+    this.scene.add(this.cloudManager.getClouds());
+    this.loop.updatables.push(this.cloudManager);
 
     // Add sky
     this.sky = new Sky();

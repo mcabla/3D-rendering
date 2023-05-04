@@ -23,13 +23,14 @@ export default class World {
     const chunkSize = 5;
     const viewDistance = 7; //This means 7x7=49 chunks are loaded at once
     //The map is only 5*7 = 35 => 35x35 but it looks better if the cloud field goes on a bit further
-    const cloudFieldSize = 50;
+    
 
     //Add light
     this.light = createLights();
     this.scene.add(this.light);
 
     //Add Clouds
+    const cloudFieldSize = 50;
     this.cloudManager = new CloudManager({ camera: this.camera, cloudLevel: 6, cloudfieldSize: cloudFieldSize });
     this.scene.add(this.cloudManager.getClouds());
     this.loop.updatables.push(this.cloudManager);
