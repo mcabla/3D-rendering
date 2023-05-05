@@ -8,6 +8,8 @@ import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 import { createWater } from '../../utilities/materials/water.js';
 
 import { CloudManager } from '../../utilities/clouds/clouds.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import { Sky } from 'three/addons/objects/Sky.js';
 
 //Inspiration: 
 
@@ -16,18 +18,14 @@ export default class World {
     this.main = main;
     this.scene = main.scene;
     this.loop = main.loop;
-    this.camera = createCamera();
+    this.camera = this.createCamera();
     this.scene.background = new THREE.Color(0x66BBFF);
 
     //Custom vars
     const chunkSize = 5;
     const viewDistance = 7; //This means 7x7=49 chunks are loaded at once
     //The map is only 5*7 = 35 => 35x35 but it looks better if the cloud field goes on a bit further
-    
 
-    //Add light
-    this.light = createLights();
-    this.scene.add(this.light);
 
     //Add Clouds
     const cloudFieldSize = 50;
@@ -71,6 +69,38 @@ export default class World {
     this.scene.add(this.water);
     this.loop.updatables.push(this.water);
 
+    //Add demo cube: 
+    const geometry = new THREE.ConeGeometry( 1, 2, 32 ); 
+    const material = new THREE.MeshStandardMaterial({ roughness: 0 });
+    let mesh = new THREE.Mesh(geometry, material);
+    this.scene.add(mesh);
+
+
+    //Add gui
+    this.parameters = {
+      elevation: 2,
+      azimuth: 180
+    };
+    this.gui = this.createGUI();
+
+    //Add sky and light
+
+    // this.light = createLights();
+    // this.scene.add(this.light);
+    this.sun = new THREE.Vector3();
+    this.sky = new Sky();
+    this.sky.scale.setScalar(10000);
+    this.scene.add(this.sky);
+
+    this.pmremGenerator = new THREE.PMREMGenerator(main.renderer);
+
+    this.skyUniforms = this.sky.material.uniforms;
+    this.skyUniforms['turbidity'].value = 10;
+    this.skyUniforms['rayleigh'].value = 2;
+    this.skyUniforms['mieCoefficient'].value = 0.005;
+    this.skyUniforms['mieDirectionalG'].value = 0.8;
+    this.updateSun();
+
     //Controls creative mode flying: 
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);
     controls.movementSpeed = 4;
@@ -82,19 +112,55 @@ export default class World {
         controls.update(delta);
       }
     });
+  }
+
+
+  createGUI() {
+    const gui = new GUI({ container: document.getElementById("sceneContainer") });
+
+    const folderSky = gui.addFolder('Sky');
+    folderSky.add(this.parameters, 'elevation', 0, 90, 0.1).onChange(() => this.updateSun());
+    folderSky.add(this.parameters, 'azimuth', - 180, 180, 0.1).onChange(() => this.updateSun());
+    folderSky.open();
+
+    return gui;
+  }
+
+  createCamera() {
+    const camera = new THREE.PerspectiveCamera(
+      35, // fov = Field Of View
+      1, // dummy value for aspect ratio
+      0.1, // near clipping plane 
+      100, // far clipping plane
+    );
+    camera.position.set(-10, 2, 0);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    return camera;
+  }
+
+  updateSun() {
+    const phi = THREE.MathUtils.degToRad(90 - this.parameters.elevation);
+    const theta = THREE.MathUtils.degToRad(this.parameters.azimuth);
+
+    this.sun.setFromSphericalCoords(1, phi, theta);
+
+    this.sky.material.uniforms['sunPosition'].value.copy(this.sun);
+    this.water.material.uniforms['sunDirection'].value.copy(this.sun).normalize();
+
+    if (this.renderTarget !== undefined) {
+      this.renderTarget.dispose();
+    }
+
+    this.renderTarget = this.pmremGenerator.fromScene(this.sky);
+
+    this.scene.environment = this.renderTarget.texture;
+
+    //Update terrain
+    terrainTropic.uniforms.sunDirection.value = this.sun;
 
   }
+
+
 }
 
-function createCamera() {
-  const camera = new THREE.PerspectiveCamera(
-    35, // fov = Field Of View
-    1, // dummy value for aspect ratio
-    0.1, // near clipping plane 
-    100, // far clipping plane
-  );
-  camera.position.set(-10, 2, 0);
-  camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-  return camera;
-}

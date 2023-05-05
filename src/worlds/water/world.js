@@ -99,7 +99,7 @@ export default class World {
   }
 
   createGUI() {
-    const gui = new GUI();
+    const gui = new GUI({ container: document.getElementById("sceneContainer")});
 
     const folderSky = gui.addFolder('Sky');
     folderSky.add(this.parameters, 'elevation', 0, 90, 0.1).onChange(() => this.updateSun());

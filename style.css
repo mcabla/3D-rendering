@@ -20,3 +20,9 @@ body {
   -ms-user-select: none;
   /* Internet Explorer/Edge */
 }
+
+.lil-gui.root {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+}

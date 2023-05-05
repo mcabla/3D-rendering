@@ -66,10 +66,11 @@ export const terrainTropic = new THREE.ShaderMaterial({
         
         uniform float lowestGrass;
         uniform float highestSand;
-        
-        uniform vec3 sunDirection;
         uniform vec3 sunColor;
+
         uniform vec3 ambientColor;
+        uniform vec3 sunDirection;
+        
         
         varying vec2 vUv;
         varying vec3 vNormal;
@@ -97,7 +98,9 @@ export const terrainTropic = new THREE.ShaderMaterial({
             vec3 bitangent = normalize(vBitangent);
             
             vec3 mapNormal = normalize(vec3(128.0)) * mat3(bitangent, tangent, normal);
-            vec3 lightDirection = normalize(-sunDirection);
+
+            vec3 swappedSunDirection = vec3(-sunDirection.x, sunDirection.z, -sunDirection.y);
+            vec3 lightDirection = normalize(-swappedSunDirection);
             float diffuse = max(0.0, dot(mapNormal, lightDirection)); 
             
             vec3 ambient = ambientColor * texel.xyz;
