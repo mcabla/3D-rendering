@@ -1,7 +1,11 @@
 import * as THREE from 'three';
 
 export function createLights() {
-    const light = new THREE.DirectionalLight('white', 1);
-    light.position.set(10, 10, 10);
-    return light;
+    const directionalLight = new THREE.DirectionalLight('white', 1);
+    directionalLight.position.set(10, 10, 10);
+    const ambientLight = new THREE.AmbientLight(0xfff9b2, .9);
+    const group = new THREE.Group();
+    group.add(directionalLight);
+    group.add(ambientLight);
+    return group;
 }

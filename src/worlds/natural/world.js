@@ -95,7 +95,7 @@ export default class World {
     terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.01;
     terrainMaterial.uniforms['surfaceLevel'].value = waterHeight + 0.09;
     terrainMaterial.uniforms['stoneAngle'].value =  0.6;
-    terrainMaterial.uniforms['grassAngle'].value = 0.9;
+    terrainMaterial.uniforms['grassAngle'].value = 0.75;
 
     //Add boids
     this.boidManager = new BoidManager({

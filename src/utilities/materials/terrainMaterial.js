@@ -92,7 +92,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec4 sandTexel = texture2D(sandTexture, vUv * 20.0);
             
             vec4 stoneNormal = texture2D(stoneNormalMap, rotatedUv  * 20.0);
-            vec4 grassNormal = vec4(vec3(0.0, 1.0, 0.0) * 0.5 + 0.5, 1.0);
+            vec4 grassNormal = vec4(vec3(1.0, 1.0, 1.0) * 0.5 + 0.5, 1.0);
             vec4 sandNormal = texture2D(sandNormalMap, vUv * 20.0);
             
             vec4 heightTexel = mix(sandTexel, grassTexel, smoothstep(waterLevel, surfaceLevel, vPosition.y));
@@ -110,8 +110,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec3 swappedSunDirection = vec3(-sunDirection.x, sunDirection.z, -sunDirection.y);
             vec3 lightDirection = normalize(swappedSunDirection);
             
-            float diffuse = max(0.0, dot(mapNormal, lightDirection)); 
-            
+            float diffuse = max(0.0, dot(mapNormal, lightDirection));            
             vec3 ambient = ambientColor * texel.xyz;
 
             vec3 sunLight = sunColor * diffuse * texel.xyz;
