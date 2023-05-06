@@ -27,7 +27,7 @@ export class Boid {
         boidBehavior = {
             //*Attention: If you overwrite one of the boidBehavior rules you need to overwrite all of them!
             constantVel: 1, //How fast the boids move at all times
-            avoidWallsForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
+            centeringForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
             gravity: 0.005, //How much the boids are affected by gravity
             attractForce: 0.02, //How hard are they pulled to the center of the swarm
             minDistance: 1, //How close do they have to be before they are considered neighbours
@@ -55,22 +55,21 @@ export class Boid {
         return this.mesh;
     }
     update(boids, center, boidid, delta) {
-        //*Push away from walls or floor
+        //*Rule 1: Push away from walls or floor
         let push = new THREE.Vector3();
         if (this.floorMode) {
-            //In floor mode we also want to weakly pull towards the center or the boids will just keep going forever
-            //!HACKY
+            //In floor mode we also want to weakly pull towards the camera or the boids will just fly away over time
             push.x = (this.camera.position.x - this.pos.x) / 1000;
             push.z = (this.camera.position.z - this.pos.z) / 1000;
-            push.y = Math.max(0, this.floorHeight - this.pos.y);
+            push.y = Math.max(0, this.floorHeight - this.pos.y);//*Push up from the floor
         } else {
             push.x = Math.min(0, this.cubeSize / 2 - this.pos.x) + Math.max(0, -this.pos.x - this.cubeSize / 2);
             push.y = Math.min(0, this.cubeSize / 2 - this.pos.y) + Math.max(0, -this.pos.y - this.cubeSize / 2);
             push.z = Math.min(0, this.cubeSize / 2 - this.pos.z) + Math.max(0, -this.pos.z - this.cubeSize / 2);
         }
-        this.vel.add(push.multiplyScalar(this.boidBehavior.avoidWallsForce));
+        this.vel.add(push.multiplyScalar(this.boidBehavior.centeringForce));
 
-        //*Apply forces for which we need to check every other boid (O(n^2) -> expensive)
+        //*Rule 2&3: Apply forces for which we need to check every other boid (O(n^2) -> expensive)
         for (let i = 0; i < boids.length; i++) {
             if (i !== boidid) {
                 // console.log("Push away from " + i);
@@ -82,25 +81,26 @@ export class Boid {
                     push.y = this.pos.y - boids[i].pos.y;
                     push.z = this.pos.z - boids[i].pos.z;
                     push.normalize().multiplyScalar(this.boidBehavior.avoidForce).divideScalar(dist + 0.00001);
+                    //^ avoid /0 error by offsetting with a small value
                     this.vel.add(push);
 
                     //*Try to move in a similar direction as your neighbours
-                    push.copy(boids[i].vel).normalize().multiplyScalar(0.001).divideScalar(dist + 0.00001);
+                    push.copy(boids[i].vel).normalize().multiplyScalar(this.boidBehavior.conformDirection).divideScalar(dist + 0.00001);
                     this.vel.add(push);
                 }
             }
         }
-        //*Pull towards the center of the swarm
+        //*Rule 4: Pull towards the center of the swarm
         push.x = center.x - this.pos.x;
         push.y = center.y - this.pos.y;
         push.z = center.z - this.pos.z;
         push.normalize();
         this.vel.add(push.multiplyScalar(this.boidBehavior.attractForce));
 
-        //*Pull towards tje ground
+        //*Rule 5: Pull downwards
         this.vel.y -= this.boidBehavior.gravity;
 
-        //* Set speed to constant value
+        //* Rule 6: Set speed to constant value
         this.vel.normalize().multiplyScalar(this.boidBehavior.constantVel);
 
         this.pos.add(this.vel.clone().multiplyScalar(delta));

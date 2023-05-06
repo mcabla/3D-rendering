@@ -23,7 +23,7 @@ const defaultBoidMesh = new THREE.Mesh(geometryBoid, materialBoid);
 const boidBehavior = {
   //*Attention: If you overwrite one of the boidBehavior rules you need to overwrite all of them!
   constantVel: 1, //How fast the boids move at all times
-  avoidWallsForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
+  centeringForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
   gravity: 0.005, //How much the boids are affected by gravity
   attractForce: 0.02, //How hard are they pulled to the center of the swarm
   minDistance: 0.5, //How close do they have to be before they are considered neighbours

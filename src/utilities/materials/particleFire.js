@@ -7,7 +7,8 @@ export const fireParticle = new THREE.ShaderMaterial({
         fireHeight: {},
         fireSize: {},
         fireToSmokeRatio: {},
-        firePosition: {}
+        firePosition: {},
+        opacity: {}
     },
     vertexShader: `
         varying vec3 vColor;
@@ -17,6 +18,7 @@ export const fireParticle = new THREE.ShaderMaterial({
         uniform float fireSize;
         uniform float fireToSmokeRatio;
         uniform vec3 firePosition; 
+        uniform float opacity;  
     
         attribute float id;
         attribute float isSmoke;
@@ -28,7 +30,7 @@ export const fireParticle = new THREE.ShaderMaterial({
         void main() {
             vId = id; 
             vIsSmoke = isSmoke; 
-            if(vIsSmoke> 0.001)
+            if(vId > fireToSmokeRatio)
                 vSize =  fireSize*1.6*vId - 0.2*(position.y-firePosition.y);//smoke
             else
                 vSize =  fireSize*3.2*vId - 2.0 *(position.y-firePosition.y);//fire        
@@ -44,20 +46,22 @@ export const fireParticle = new THREE.ShaderMaterial({
         varying float vId;
         varying float vIsSmoke;
         varying float vSize; 
-        uniform float fireToSmokeRatio; 
+        uniform float fireToSmokeRatio;
+        uniform float opacity;
+ 
 
         void main() {
             if(vSize < 0.00001) discard; 
             
             vec4 color; 
-            if(vIsSmoke > 0.001)
-                color = vec4(0.5,0.5,0.5, 1.0);//smoke
+            if(vId > fireToSmokeRatio)
+                color = vec4(0.5,0.5,0.5, opacity * 0.625);//smoke
             else 
-                color = vec4(vColor, 1.0);//fire
-            
+                color = vec4(vColor, opacity);//fire
             
             gl_FragColor = color; 
         }
     `,
+    transparent: true
 });
 

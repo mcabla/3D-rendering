@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { createMeshCube } from './meshCube.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { Fire } from '../../utilities/fire/fire.js';
 import { createLights } from './lights.js';
@@ -12,19 +11,13 @@ export default class World {
     this.camera = createCamera();
     this.scene.background = new THREE.Color(0x151519);
 
-    //Custom vars
-    let cubeSize = 8;
-
-    this.cube = createMeshCube(cubeSize);
-    this.scene.add(this.cube);
 
     //Add fire
     const fire = new Fire({
       scene: this.scene,
       updatables: this.loop.updatables,
       firePosition: { x: 0, y: 0, z: 0 },
-      fireSize: 5,
-      fireHeight: 20
+      amount: 10000,
     });
 
 
