@@ -62,23 +62,25 @@ export class Fire {
             for (let i = 0; i < amount * 3; i += 3) {
                 const id = ids[i / 3];
 
+                let speedModifier = 1 + (id - 0.5);
+                let phaseModifier = prime * 2 * Math.PI * id;
                 //TODO: You could move this to the shader as well.
                 if (id > fireToSmokeRatio) {
                     //*Is smoke
                     //Set x
-                    positions[i] = positionsStart[i] + rangeSmoke * Math.sin(speedSmoke * time / 1000 + prime * 2 * Math.PI * id);
+                    positions[i] = positionsStart[i] + rangeSmoke * Math.sin(speedSmoke * time / 1000 + phaseModifier);
                     //Set z
-                    positions[i + 2] = positionsStart[i + 2] + rangeSmoke * Math.cos(speedSmoke * time / 1000 + prime * 2 * Math.PI * id);
+                    positions[i + 2] = positionsStart[i + 2] + rangeSmoke * Math.cos(speedSmoke * time / 1000 + phaseModifier);
                     //Set y
-                    positions[i + 1] = positionsStart[i + 1] + (speedSmoke * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//smoke
+                    positions[i + 1] = positionsStart[i + 1] + (speedModifier * speedSmoke * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//smoke
                 } else {
                     //*Is fire
                     //Set x
-                    positions[i] = positionsStart[i] + rangeFire * Math.sin(2 * speedFire * time / 1000 + prime * 2 * Math.PI * id);
+                    positions[i] = positionsStart[i] + rangeFire * Math.sin(2 * speedFire * time / 1000 + phaseModifier);
                     //Set z
-                    positions[i + 2] = positionsStart[i + 2] + rangeFire * Math.cos(2 * speedFire * time / 1000 + prime * 2 * Math.PI * id);
+                    positions[i + 2] = positionsStart[i + 2] + rangeFire * Math.cos(2 * speedFire * time / 1000 + phaseModifier);
                     //Set y 
-                    positions[i + 1] = positionsStart[i + 1] + (speedFire * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//fire
+                    positions[i + 1] = positionsStart[i + 1] + (speedModifier * speedFire * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//fire
                 }
             }
             //Update geometry

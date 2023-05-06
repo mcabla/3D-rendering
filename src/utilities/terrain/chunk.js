@@ -23,7 +23,7 @@ export class Chunk {
         waterHeight = 0.0,
         treesCount = 0,
         terrainGen = {
-            //*Attention: If you overwrite one of these you need to overwrite all of them!
+            //!Attention: If you overwrite one of these you need to overwrite all of them!
             baseFreq: 1,
             freqGain: 3,
             baseAmpl: 2.5,
