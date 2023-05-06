@@ -12,17 +12,12 @@ export class Fire {
         const position = [];
         const positionStart = [];
         const id = [];
-        const isSmoke = [];
         for (let i = 0; i < amount; i++) {
 
-
+            let idN = Math.random();
             let r = fireSize * (Math.random() - 0.5)
-            if (Math.random() > fireToSmokeRatio) {
-                r /= 2;
-                isSmoke.push(1);
-            } else
-                isSmoke.push(0);
-
+            if (idN > fireToSmokeRatio)
+                r *= 0.8;
 
             const dir = Math.random() * 2 * Math.PI
             let x = firePosition.x + r * Math.cos(dir);
@@ -31,14 +26,14 @@ export class Fire {
 
             position.push(0, 0, 0);
             positionStart.push(x, y, z);
-            id.push(Math.random());
+            id.push(idN);
         }
 
         //* Set attributes
         geometry.setAttribute("position", new THREE.Float32BufferAttribute(position, 3).setUsage(THREE.DynamicDrawUsage));
         geometry.setAttribute("positionStart", new THREE.Float32BufferAttribute(positionStart, 3).setUsage(THREE.StaticReadUsage));
         geometry.setAttribute("id", new THREE.Float32BufferAttribute(id, 1).setUsage(THREE.StaticReadUsage));
-        geometry.setAttribute("isSmoke", new THREE.Uint8BufferAttribute(isSmoke, 1).setUsage(THREE.StaticReadUsage));
+
 
         //*Configure material
         fireParticle.uniforms.fireToSmokeRatio.value = fireToSmokeRatio;
@@ -59,7 +54,6 @@ export class Fire {
         let positions = geometry.attributes.position.array;
         let positionsStart = geometry.attributes.positionStart.array;
         let ids = geometry.attributes.id.array;
-        let bools = geometry.attributes.isSmoke.array;
 
         const prime = 7247;//Prime number to break up patterns
         this.pointManager.tick = (delta) => {
@@ -67,23 +61,22 @@ export class Fire {
 
             for (let i = 0; i < amount * 3; i += 3) {
                 const id = ids[i / 3];
-                let isSmoke = bools[i / 3];
 
                 //TODO: You could move this to the shader as well.
-                if (id> fireToSmokeRatio) {
+                if (id > fireToSmokeRatio) {
                     //*Is smoke
                     //Set x
-                    positions[i] = positionsStart[i] + rangeSmoke * Math.sin(speedSmoke * time / 1000 + 2 * Math.PI * id);
+                    positions[i] = positionsStart[i] + rangeSmoke * Math.sin(speedSmoke * time / 1000 + prime * 2 * Math.PI * id);
                     //Set z
-                    positions[i + 2] = positionsStart[i + 2] + rangeSmoke * Math.cos(speedSmoke * time / 1000 + 2 * Math.PI * id);
+                    positions[i + 2] = positionsStart[i + 2] + rangeSmoke * Math.cos(speedSmoke * time / 1000 + prime * 2 * Math.PI * id);
                     //Set y
                     positions[i + 1] = positionsStart[i + 1] + (speedSmoke * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//smoke
                 } else {
                     //*Is fire
                     //Set x
-                    positions[i] = positionsStart[i] + rangeFire * Math.sin(2 * speedFire * time / 1000 + 2 * Math.PI * id);
+                    positions[i] = positionsStart[i] + rangeFire * Math.sin(2 * speedFire * time / 1000 + prime * 2 * Math.PI * id);
                     //Set z
-                    positions[i + 2] = positionsStart[i + 2] + rangeFire * Math.cos(2 * speedFire * time / 1000 + 2 * Math.PI * id);
+                    positions[i + 2] = positionsStart[i + 2] + rangeFire * Math.cos(2 * speedFire * time / 1000 + prime * 2 * Math.PI * id);
                     //Set y 
                     positions[i + 1] = positionsStart[i + 1] + (speedFire * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//fire
                 }
