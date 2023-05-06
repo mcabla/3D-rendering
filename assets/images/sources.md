@@ -14,3 +14,10 @@ Tool to make images seamless:
 # Leaves
 https://opengameart.org/content/paramecijs-vegetation-base-texture-pack
 https://opengameart.org/content/paramecijs-tree-trunks-and-stumps-texture-pack-1
+
+# Rocks
+https://3dtextures.me/2019/12/03/rock-035/
+# Grass
+https://3dtextures.me/2020/07/28/stylized-grass-002/
+# Sand
+https://3dtextures.me/2018/12/26/sand-004/
