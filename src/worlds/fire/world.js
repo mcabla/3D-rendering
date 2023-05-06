@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createMeshCube } from './meshCube.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Fire2 } from '../../utilities/fire/fire2.js';
+import { Fire } from '../../utilities/fire/fire.js';
 import { createLights } from './lights.js';
 //Inspired by: https://github.com/mrdoob/three.js/blob/master/examples/webgl_buffergeometry_custom_attributes_particles.html
 export default class World {
@@ -19,7 +19,13 @@ export default class World {
     this.scene.add(this.cube);
 
     //Add fire
-    const fire = new Fire2({ scene: this.scene, updatables: this.loop.updatables });
+    const fire = new Fire({
+      scene: this.scene,
+      updatables: this.loop.updatables,
+      firePosition: { x: 0, y: 0, z: 0 },
+      fireSize: 5,
+      fireHeight: 20
+    });
 
 
     //Add lights

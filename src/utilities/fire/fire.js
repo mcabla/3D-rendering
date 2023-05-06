@@ -1,61 +1,96 @@
 import * as THREE from 'three';
-import { materialParticle } from '../materials/particle.js';
+import { fireParticle } from '../materials/particleFire.js';
 
 //*For the most realistic looking results the amount should not be bigger than 5x the cloudsize
 
 
 export class Fire {
 
-    constructor({ scene, updatables, amountLogs = 3, amount = 100, fireHeight = 10, speed = 5, cloudSize = 5 }) {
+    constructor({ scene, updatables, firePosition = { x: 0, y: 0, z: 0 }, fireSize = 5, fireToSmokeRatio = 0.9, amount = 1000, fireHeight = 20, speed = 0.4 }) {
+        const amountLogs = 3;
+
         const geometry = new THREE.BufferGeometry();
-        const positions = [];
+        //*Fill buffers
+        const position = [];
+        const positionStart = [];
         const id = [];
-        const sizes = [];
+        const isSmoke = [];
         for (let i = 0; i < amount; i++) {
-            //Buffer so can't use fancy datatypes!
-            positions.push(cloudSize * (Math.random() - 0.5), fireHeight * Math.random(), cloudSize * (Math.random() - 0.5));
-            id.push(Math.random() * 2 * Math.PI);
-            sizes.push(0);
+
+
+            let r = fireSize * (Math.random() - 0.5)
+            if (Math.random() > fireToSmokeRatio) {
+                r /= 2;
+                isSmoke.push(1);
+            } else
+                isSmoke.push(0);
+
+
+            const dir = Math.random() * 2 * Math.PI
+            let x = firePosition.x + r * Math.cos(dir);
+            let y = firePosition.y;
+            let z = firePosition.z + r * Math.sin(dir);
+
+            position.push(0, 0, 0);
+            positionStart.push(x, y, z);
+            id.push(Math.random());
         }
 
-        //*You can't choose these names, threejs needs position to be position to understand it!
-        geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
-        geometry.setAttribute("id", new THREE.Float16BufferAttribute(id, 1));
-        geometry.setAttribute("size", new THREE.Float32BufferAttribute(sizes, 1).setUsage(THREE.DynamicDrawUsage));
+        //* Set attributes
+        geometry.setAttribute("position", new THREE.Float32BufferAttribute(position, 3).setUsage(THREE.DynamicDrawUsage));
+        geometry.setAttribute("positionStart", new THREE.Float32BufferAttribute(positionStart, 3).setUsage(THREE.StaticReadUsage));
+        geometry.setAttribute("id", new THREE.Float32BufferAttribute(id, 1).setUsage(THREE.StaticReadUsage));
+        geometry.setAttribute("isSmoke", new THREE.Uint8BufferAttribute(isSmoke, 1).setUsage(THREE.StaticReadUsage));
 
-        this.pointManager = new THREE.Points(geometry, materialParticle);
-        const p = new THREE.Vector3();//Help vector
+        //*Configure material
+        fireParticle.uniforms.fireToSmokeRatio.value = fireToSmokeRatio;
+        fireParticle.uniforms.fireHeight.value = fireHeight;
+        fireParticle.uniforms.fireSize.value = fireSize;
+        fireParticle.uniforms.firePosition.value = new THREE.Vector3(firePosition.x, firePosition.y, firePosition.z);
+        this.pointManager = new THREE.Points(geometry, fireParticle);
+
+        //Params
+        const rangeFire = fireSize / 5;
+        const rangeSmoke = rangeFire / 2;
+        const speedFire = speed * fireSize / 5;
+        const speedSmoke = speedFire / 2;
+
+
+        //Get buffers
+        let positions = geometry.attributes.position.array;
+        let positionsStart = geometry.attributes.positionStart.array;
+        let ids = geometry.attributes.id.array;
+        let bools = geometry.attributes.isSmoke.array;
+
+        const prime = 7247;//Prime number to break up patterns
         this.pointManager.tick = (delta) => {
-            const time = Date.now();
-            //Get buffers
-            let positions = geometry.attributes.position.array;
-            let sizes = geometry.attributes.size.array;
-            let ids = geometry.attributes.id.array;
+            let time = Date.now();
 
             for (let i = 0; i < amount * 3; i += 3) {
-                p.x = positions[i]; p.y = positions[i + 1]; p.z = positions[i + 2];
-                //*Adjust size based on height and id
-                sizes[i / 3] = Math.max(0, 2 * (ids[i / 3] - 0.5 * positions[i + 1]));
+                const id = ids[i / 3];
+                let isSmoke = bools[i / 3];
 
-                //*Adjust position;
-                //Change x
-                positions[i] += delta * speed / 5 * Math.sin(p.y);
-                //Change z
-                positions[i + 2] += delta * speed / 5 * Math.cos(p.y);
-                //Change y
-                positions[i + 1] += speed * delta;
-
-                //*Respawn if too far
-                if (positions[i + 1] > fireHeight) {
-                    positions[i] = cloudSize * (Math.random() - 0.5);
-                    positions[i + 1] = 0;
-                    positions[i + 2] = cloudSize * (Math.random() - 0.5);
+                //TODO: You could move this to the shader as well.
+                if (isSmoke) {
+                    //*Is smoke
+                    //Set x
+                    positions[i] = positionsStart[i] + rangeSmoke * Math.sin(speedSmoke * time / 1000 + 2 * Math.PI * id);
+                    //Set z
+                    positions[i + 2] = positionsStart[i + 2] + rangeSmoke * Math.cos(speedSmoke * time / 1000 + 2 * Math.PI * id);
+                    //Set y
+                    positions[i + 1] = positionsStart[i + 1] + (speedSmoke * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//smoke
+                } else {
+                    //*Is fire
+                    //Set x
+                    positions[i] = positionsStart[i] + rangeFire * Math.sin(speedFire * time / 1000 + 2 * Math.PI * id);
+                    //Set z
+                    positions[i + 2] = positionsStart[i + 2] + rangeFire * Math.cos(speedFire * time / 1000 + 2 * Math.PI * id);
+                    //Set y 
+                    positions[i + 1] = positionsStart[i + 1] + (speedFire * time / 1000 + prime * id * fireHeight) % 2 * fireHeight;//fire
                 }
             }
             //Update geometry
             geometry.attributes.position.needsUpdate = true;
-            geometry.attributes.size.needsUpdate = true;
-
 
         }
         //Add point manager
@@ -63,11 +98,20 @@ export class Fire {
         updatables.push(this.pointManager);
 
         //Add loggs 
-        const woodMaterial = new THREE.MeshStandardMaterial({ color: 0x332110 });
-        const cilinderMesh = new THREE.CylinderGeometry(0.8, 0.8, 8, 6);
+        const woodMaterial = new THREE.MeshStandardMaterial({
+            color: 0x332110,
+            emissive:0x332110, // Set a brighter emissive color
+            emissiveIntensity: 0.5, // Adjust the intensity of the emissive color
+            roughness: 1.0, // Increase the roughness value
+            metalness: 0.0 // Decrease the metalness value
+        });
+        const cilinderMesh = new THREE.CylinderGeometry(0.16 * fireSize, 0.16 * fireSize, 1.6 * fireSize, 6);
         cilinderMesh.rotateX(Math.PI / 2);
-        cilinderMesh.translate(0, -1, 0);
+
         const logStart = new THREE.Mesh(cilinderMesh, woodMaterial);
+        logStart.position.x = firePosition.x;
+        logStart.position.y = firePosition.y - fireSize / 5;
+        logStart.position.z = firePosition.z;
         for (let i = 0; i < amountLogs; i++) {
             const log = logStart.clone();
             log.rotation.y = Math.PI / amountLogs * i;

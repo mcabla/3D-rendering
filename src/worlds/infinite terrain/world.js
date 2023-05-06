@@ -6,10 +6,10 @@ import { grassBasic } from '../../utilities/materials/grassBasic.js';
 import { terrainTropic } from '../../utilities/materials/terrainTropic.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 import { createWater } from '../../utilities/materials/water.js';
-
 import { CloudManager } from '../../utilities/clouds/clouds.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Sky } from 'three/addons/objects/Sky.js';
+import { Fire } from '../../utilities/fire/fire.js';
 
 //Inspiration: 
 
@@ -69,18 +69,28 @@ export default class World {
     this.scene.add(this.water);
     this.loop.updatables.push(this.water);
 
-    //Add demo cube: 
-    const geometry = new THREE.ConeGeometry( 1, 2, 32 ); 
-    const material = new THREE.MeshStandardMaterial({ roughness: 0 });
-    let mesh = new THREE.Mesh(geometry, material);
-    this.scene.add(mesh);
+    //Add demo cone: 
+    // const geometry = new THREE.ConeGeometry(1, 2, 32);
+    // const material = new THREE.MeshStandardMaterial({ roughness: 0 });
+    // let mesh = new THREE.Mesh(geometry, material);
+    // this.scene.add(mesh);
+
+    //Add fire
+    const fire = new Fire({
+      scene: this.scene,
+      updatables: this.loop.updatables,
+      firePosition: { x: -3, y: 1.255, z:   0.5 },
+      fireSize: 0.1, 
+      fireHeight: 0.4
+    });
 
 
     //Add gui
     this.parameters = {
-      elevation: 2,
-      azimuth: 180
+      elevation: 0,
+      azimuth: 115
     };
+
     this.gui = this.createGUI();
 
     //Add sky and light
