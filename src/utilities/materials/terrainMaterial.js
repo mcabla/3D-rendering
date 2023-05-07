@@ -108,7 +108,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec4 stoneTexel = texture2D(stoneTexture, vUv  * 20.0);
             vec4 sandTexel = texture2D(sandTexture, vUv * 20.0);
 
-            vec4 stoneNormal = texture2D(stoneNormalMap, rotatedUv  * 20.0);
+            vec4 stoneNormal = texture2D(stoneNormalMap, vUv  * 20.0);
             vec4 grassNormal = vec4(vec3(1.0, 1.0, 1.0) * 0.5 + 0.5, 1.0);
             vec4 sandNormal = texture2D(sandNormalMap, vUv * 20.0);
 
