@@ -46,11 +46,13 @@ export class CloudManager extends THREE.Group {
         let positions = this.geometry.attributes.position.array;
         let sizes = this.geometry.attributes.size.array;
         for (let i = 0; i < this.particleCount * 3; i += 3) {
-            //*Adjust position
-            const xPos = positions[i] + this.cameraPos.x;
-            const zPos = positions[i + 2] + this.cameraPos.z;
+            //*Get particle position
+            let xPos = positions[i] + this.cameraPos.x;
+            let zPos = positions[i + 2] + this.cameraPos.z;
             //*Adjust size
-            const p = this.perlin.noise(xPos * this.perlinFreq + Date.now() / 50000, this.cloudLevel * this.perlinFreq, zPos * this.perlinFreq + Date.now() / 50000);
+            let xP = xPos * this.perlinFreq + Date.now() / 50000;
+            let zP = zPos * this.perlinFreq + Date.now() / 50000;
+            const p = this.perlin.noise(xP, 0, zP);
             sizes[i / 3] = this.calculateParticlesize(p)
         }
         //Update geometry

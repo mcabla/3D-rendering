@@ -9,18 +9,20 @@ export const materialParticle = new THREE.ShaderMaterial({
     },
     vertexShader: /* glsl */`
         attribute float size;
-        
+        varying float vSize;
         void main() {
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
             gl_PointSize = size * (300.0 / -mvPosition.z);
+            vSize = gl_PointSize; 
             gl_Position = projectionMatrix * mvPosition;
         }
     `,
     fragmentShader: /* glsl */`
         uniform sampler2D pointTexture;
         uniform float opacity;
-                
+        varying float vSize; 
         void main(){
+            if(vSize < 0.00001) discard; 
             vec4 texColor = texture2D(pointTexture, gl_PointCoord);
             gl_FragColor = vec4(1.0, 1.0, 1.0, opacity) * texColor;
         }
