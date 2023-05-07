@@ -9,6 +9,7 @@ const onLoad = (texture) => {
 const stone = new THREE.TextureLoader().load('assets/images/Rock_035_BaseColor.jpg', onLoad);
 const stoneNormal = new THREE.TextureLoader().load('assets/images/Rock_035_normal.jpg', onLoad);
 const grass = new THREE.TextureLoader().load('assets/images/grass2-seamless2-bright.jpg', onLoad);
+const grass2 = new THREE.TextureLoader().load('assets/images/grass2-seamless2-bright_remix.png', onLoad);
 const sand = new THREE.TextureLoader().load('assets/images/Sand_004_COLOR.png', onLoad);
 const sandNormal = new THREE.TextureLoader().load('assets/images/Sand_004_Normal.png', onLoad);
 
@@ -18,6 +19,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         stoneTexture: { type: "t", value: stone },
         stoneNormalMap: { type: "t", value: stoneNormal },
         grassTexture: { type: "t", value: grass },
+        grass2Texture: { type: "t", value: grass2 },
         sandTexture: { type: "t", value: sand },
         sandNormalMap: { type: "t", value: sandNormal },
         stoneAngle: { type: "float", value: 0.5 },
@@ -63,6 +65,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
     fragmentShader: /* glsl */`
         uniform sampler2D stoneTexture;
         uniform sampler2D grassTexture;
+        uniform sampler2D grass2Texture;
         uniform sampler2D sandTexture;
         
         uniform sampler2D stoneNormalMap;
@@ -91,11 +94,21 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             float randAngle = ceil(mod(vUv.x*20.0, 4.0))*0.785398163397;
             vec2 rotatedUv = vec2(cos(randAngle) * (vUv.x - 0.5) - sin(randAngle) * (vUv.y - 0.5) + 0.5, sin(randAngle) * (vUv.x - 0.5) + cos(randAngle) * (vUv.y - 0.5) + 0.5);
 
+            // Define a seed value based on the uv coordinates
+            float seed = clamp(fract(rotatedUv.x * rotatedUv.y * 43.7585453123), 0.0, 1.0);
+            
+            // Use the seed value to select one of the textures
+            vec4 grassTexel1 = texture2D(grassTexture, rotatedUv * 20.0);
+            vec4 grassTexel2 = texture2D(grass2Texture, rotatedUv * 20.0);
+            
+            // Blend the two textures together using the seed
+            vec4 grassTexel = mix(grassTexel1, grassTexel2, smoothstep(0.49, 0.51, seed));
+            grassTexel = mix(grassTexel, grassTexel1, smoothstep(.99, 1.0, seed));
+
             vec4 stoneTexel = texture2D(stoneTexture, vUv  * 20.0);
-            vec4 grassTexel = texture2D(grassTexture, rotatedUv * 20.0);
             vec4 sandTexel = texture2D(sandTexture, vUv * 20.0);
 
-            vec4 stoneNormal = texture2D(stoneNormalMap, rotatedUv  * 20.0);
+            vec4 stoneNormal = texture2D(stoneNormalMap, vUv  * 20.0);
             vec4 grassNormal = vec4(vec3(1.0, 1.0, 1.0) * 0.5 + 0.5, 1.0);
             vec4 sandNormal = texture2D(sandNormalMap, vUv * 20.0);
 
