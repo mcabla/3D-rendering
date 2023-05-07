@@ -6,7 +6,7 @@ const onLoad = (texture) => {
 };
 
 // Define the two textures to blend
-const stone = new THREE.TextureLoader().load('assets/images/Rock_035_BaseColor.jpg', onLoad);
+const stone = new THREE.TextureLoader().load('assets/images/Rock_035_baseColor-dark.jpg', onLoad);
 const stoneNormal = new THREE.TextureLoader().load('assets/images/Rock_035_normal.jpg', onLoad);
 const grass = new THREE.TextureLoader().load('assets/images/grass2-seamless2-bright.jpg', onLoad);
 const grass2 = new THREE.TextureLoader().load('assets/images/grass2-seamless2-bright_remix.png', onLoad);
@@ -105,10 +105,10 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec4 grassTexel = mix(grassTexel1, grassTexel2, smoothstep(0.49, 0.51, seed));
             grassTexel = mix(grassTexel, grassTexel1, smoothstep(.99, 1.0, seed));
 
-            vec4 stoneTexel = texture2D(stoneTexture, vUv  * 20.0);
+            vec4 stoneTexel = texture2D(stoneTexture, vUv  * 4.0);
             vec4 sandTexel = texture2D(sandTexture, vUv * 20.0);
 
-            vec4 stoneNormal = texture2D(stoneNormalMap, vUv  * 20.0);
+            vec4 stoneNormal = texture2D(stoneNormalMap, vUv  * 4.0);
             vec4 grassNormal = vec4(vec3(1.0, 1.0, 1.0) * 0.5 + 0.5, 1.0);
             vec4 sandNormal = texture2D(sandNormalMap, vUv * 20.0);
 

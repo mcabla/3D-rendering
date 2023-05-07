@@ -2,10 +2,9 @@ import * as THREE from 'three';
 import { Chunk } from './chunk.js';
 
 
-export class ChunkManager {
+export class ChunkManager extends THREE.Group {
     constructor({
         camera,
-        scene,
         viewDistance,
         chunkSize,
         wireFrame = false,
@@ -16,9 +15,9 @@ export class ChunkManager {
         waterHeight = 0.0,
                     treesCount = 0
     }) {
+        super(); 
         this.camera = camera;
         this.cameraPos = new THREE.Vector3();
-        this.scene = scene;
         this.viewDistance = Math.floor(viewDistance);
         this.chunkSize = chunkSize;
         this.wireFrame = wireFrame;
@@ -77,7 +76,7 @@ export class ChunkManager {
                         waterHeight: this.waterHeight,
                         treesCount: this.treesCount
                     });
-                    this.scene.add(chunkToUpdate.getMesh());
+                    this.add(chunkToUpdate.getMesh());
                     this.chunks.add(chunkToUpdate);
                 }
                 //*Remove it from the to delete list
@@ -88,7 +87,7 @@ export class ChunkManager {
 
         //* Delete chunks that are still on the to delete list
         chunksToDelete.forEach(chunk => {
-            this.scene.remove(chunk.getMesh());
+            this.remove(chunk.getMesh());
             this.chunks.delete(chunk);
         });
     }

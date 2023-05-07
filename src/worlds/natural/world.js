@@ -90,7 +90,6 @@ export default class World {
     }
     let chunkManager = new ChunkManager({
       camera: this.camera,
-      scene: this.scene,
       viewDistance: 7,
       chunkSize: 5,
       material: terrainMaterial,
@@ -100,6 +99,7 @@ export default class World {
       treesCount: 100,
       terrainGen: terrainGen
     });
+    this.scene.add(chunkManager);
     this.loop.updatables.push(chunkManager);
     terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.01;
     terrainMaterial.uniforms['surfaceLevel'].value = waterHeight + 0.09;
@@ -194,7 +194,7 @@ export default class World {
     const gui = new GUI({ container: document.getElementById("sceneContainer") });
 
     const folderSky = gui.addFolder('Sky');
-    folderSky.add(this.parameters, 'elevation', 0, 90, 0.1).onChange(() => this.updateSun());
+    folderSky.add(this.parameters, 'elevation', 0, 89, 0.1).onChange(() => this.updateSun());
     folderSky.add(this.parameters, 'azimuth', - 180, 180, 0.1).onChange(() => this.updateSun());
     folderSky.open();
 

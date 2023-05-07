@@ -58,12 +58,12 @@ export default class World {
 
     let chunkManager = new ChunkManager({
       camera: this.camera,
-      scene: this.scene,
       viewDistance: viewDistance,
       chunkSize: chunkSize,
       material: terrainTropic,
       terrainGen: terrainGen
     });
+    this.scene.add(chunkManager);
     this.loop.updatables.push(chunkManager);
 
     //Add water
