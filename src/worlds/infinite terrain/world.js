@@ -11,6 +11,8 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { Fire } from '../../utilities/fire/fire.js';
 
+
+
 //Inspiration: 
 
 export default class World {
@@ -69,21 +71,14 @@ export default class World {
     this.scene.add(this.water);
     this.loop.updatables.push(this.water);
 
-    //Add demo cone: 
-    // const geometry = new THREE.ConeGeometry(1, 2, 32);
-    // const material = new THREE.MeshStandardMaterial({ roughness: 0 });
-    // let mesh = new THREE.Mesh(geometry, material);
-    // this.scene.add(mesh);
-
     //Add fire
     const fire = new Fire({
-      scene: this.scene,
-      updatables: this.loop.updatables,
-      firePosition: { x: -3, y: 1.255, z:   0.5 },
-      fireSize: 0.1, 
+      firePosition: { x: -3, y: 1.255, z: 0.5 },
+      fireSize: 0.1,
       fireHeight: 0.4
     });
-
+    this.loop.updatables.push(fire);
+    this.scene.add(fire);
 
     //Add gui
     this.parameters = {

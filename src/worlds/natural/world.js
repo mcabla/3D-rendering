@@ -5,34 +5,13 @@ import { FlyControls } from 'three/addons/controls/FlyControls.js';
 import { ChunkManager } from '../../utilities/terrain/chunkManager.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 import { createWater } from '../../utilities/materials/water.js';
-import {BoidManager} from "../../utilities/boids/boidManager.js";
+import { BoidManager } from "../../utilities/boids/boidManager.js";
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { CloudManager } from '../../utilities/clouds/clouds.js';
+import { Fire } from '../../utilities/fire/fire.js';
 
-//Inspiration:
 const waterHeight = 0.0;
-const boidSize = 0.03
-const boidShape = new THREE.Shape()
-  .moveTo(0, 2 * boidSize)
-  .lineTo(boidSize, -boidSize)
-  .lineTo(0, 0)
-  .lineTo(-boidSize, -boidSize)
-  .lineTo(0, 2 * boidSize);
-const geometryBoid = new THREE.ShapeGeometry(boidShape);
-const materialBoid = new THREE.MeshBasicMaterial({ color: 0x000022, side: THREE.DoubleSide });
-const defaultBoidMesh = new THREE.Mesh(geometryBoid, materialBoid);
-const boidBehavior = {
-  //*Attention: If you overwrite one of the boidBehavior rules you need to overwrite all of them!
-  constantVel: 1, //How fast the boids move at all times
-  centeringForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
-  gravity: 0.005, //How much the boids are affected by gravity
-  attractForce: 0.02, //How hard are they pulled to the center of the swarm
-  minDistance: 0.5, //How close do they have to be before they are considered neighbours
-  avoidForce: 0.01,//Only neighbours: How hard are they pushed away from their neighbours
-  conformDirection: 0.001 //Only neighbours: How much the boids want to match the direction/heading of their neighbours
-}
-
 
 export default class World {
   renderTarget;
@@ -45,7 +24,7 @@ export default class World {
     this.scene = main.scene;
     this.loop = main.loop;
     this.container = main.container;
-    this.camera = createCamera();
+    this.camera = this.createCamera();
 
     //Add light
     this.ambientLight = createAmbientLight();
@@ -68,41 +47,77 @@ export default class World {
 
     // Add sky
     this.sky = new Sky();
-    this.sky.scale.setScalar( 10000 );
-    this.scene.add( this.sky );
+    this.sky.scale.setScalar(10000);
+    this.scene.add(this.sky);
 
     this.skyUniforms = this.sky.material.uniforms;
-    this.skyUniforms[ 'turbidity' ].value = 10;
-    this.skyUniforms[ 'rayleigh' ].value = 2;
-    this.skyUniforms[ 'mieCoefficient' ].value = 0.005;
-    this.skyUniforms[ 'mieDirectionalG' ].value = 0.8;
+    this.skyUniforms['turbidity'].value = 10;
+    this.skyUniforms['rayleigh'].value = 2;
+    this.skyUniforms['mieCoefficient'].value = 0.005;
+    this.skyUniforms['mieDirectionalG'].value = 0.8;
 
-    this.pmremGenerator = new THREE.PMREMGenerator( main.renderer );
-
-    this.updateSun(this.parameters.elevation , this.parameters.azimuth);
+    this.pmremGenerator = new THREE.PMREMGenerator(main.renderer);
 
 
-    //Custom vars
-    let cubeSize = 5;
-    //Add chunks
+    //Add fire
+    const fire = new Fire({
+      firePosition: { x: -3, y: 1.255, z: 0.5 },
+      fireSize: 0.1,
+      fireHeight: 0.4
+    });
+    this.loop.updatables.push(fire);
+    this.scene.add(fire);
+
+    //*Add terrain
+    
+    const terrainGen = {
+      baseFreq: 1,
+      freqGain: 3,
+      baseAmpl: 2.5,
+      amplShrink: 0.2,
+      terrainFunc: (level, val) => {
+        if (level === 0) {
+          let beachSlope = 0.3;
+          let terrainOffset = 0.1;
+          let boundary = terrainOffset / (1 - beachSlope);
+          if (val < boundary)
+            return val * beachSlope;
+          else
+            return val - terrainOffset;
+        }
+        return val;
+      }
+    }
     let chunkManager = new ChunkManager({
       camera: this.camera,
       scene: this.scene,
       viewDistance: 7,
-      chunkSize: cubeSize,
+      chunkSize: 5,
       material: terrainMaterial,
       baseFreq: .5,
       wireFrame: false,
       waterHeight: waterHeight,
-      treesCount: 100
+      treesCount: 100,
+      terrainGen: terrainGen
     });
     this.loop.updatables.push(chunkManager);
     terrainMaterial.uniforms['waterLevel'].value = waterHeight + 0.01;
     terrainMaterial.uniforms['surfaceLevel'].value = waterHeight + 0.09;
-    terrainMaterial.uniforms['stoneAngle'].value =  0.6;
+    terrainMaterial.uniforms['stoneAngle'].value = 0.6;
     terrainMaterial.uniforms['grassAngle'].value = 0.75;
 
     //Add boids
+    const boidSize = 0.03
+    const boidShape = new THREE.Shape()
+      .moveTo(0, 2 * boidSize)
+      .lineTo(boidSize, -boidSize)
+      .lineTo(0, 0)
+      .lineTo(-boidSize, -boidSize)
+      .lineTo(0, 2 * boidSize);
+
+    const geometryBoid = new THREE.ShapeGeometry(boidShape);
+    const materialBoid = new THREE.MeshBasicMaterial({ color: 0x000022, side: THREE.DoubleSide });
+    const defaultBoidMesh = new THREE.Mesh(geometryBoid, materialBoid);
     this.boidManager = new BoidManager({
       camera: this.camera,
       boidMesh: defaultBoidMesh,
@@ -110,7 +125,16 @@ export default class World {
       amount: 100,
       boidSize: 0.1,
       floorHeight: 3,
-      boidBehavior: boidBehavior
+      boidBehavior: {
+
+        constantVel: 1, //How fast the boids move at all times
+        centeringForce: 0.1,//How hard the boids get pushed back to the center when the cross the walls or floor
+        gravity: 0.005, //How much the boids are affected by gravity
+        attractForce: 0.02, //How hard are they pulled to the center of the swarm
+        minDistance: 0.5, //How close do they have to be before they are considered neighbours
+        avoidForce: 0.01,//Only neighbours: How hard are they pushed away from their neighbours
+        conformDirection: 0.001 //Only neighbours: How much the boids want to match the direction/heading of their neighbours
+      }
     });
     this.loop.updatables.push(this.boidManager);
 
@@ -131,20 +155,20 @@ export default class World {
       elevation: 0,
       azimuth: 115
     };
-
     this.gui = this.createGUI();
+    this.updateSun(this.parameters.elevation, this.parameters.azimuth);
 
   }
 
 
   updateSun() {
-    const phi = THREE.MathUtils.degToRad( 90 - this.parameters.elevation );
-    const theta = THREE.MathUtils.degToRad( this.parameters.azimuth );
+    const phi = THREE.MathUtils.degToRad(90 - this.parameters.elevation);
+    const theta = THREE.MathUtils.degToRad(this.parameters.azimuth);
 
-    this.sun.setFromSphericalCoords( 1, phi, theta );
+    this.sun.setFromSphericalCoords(1, phi, theta);
 
-    this.sky.material.uniforms[ 'sunPosition' ].value.copy( this.sun );
-    this.water.material.uniforms[ 'sunDirection' ].value.copy( this.sun ).normalize();
+    this.sky.material.uniforms['sunPosition'].value.copy(this.sun);
+    this.water.material.uniforms['sunDirection'].value.copy(this.sun).normalize();
 
     terrainMaterial.uniforms.sunDirection.value = this.sun;
 
@@ -153,11 +177,11 @@ export default class World {
     this.directionalLight.position.z = this.sun.z * 100;
 
 
-    if ( this.renderTarget !== undefined ) {
+    if (this.renderTarget !== undefined) {
       this.renderTarget.dispose();
     }
 
-    this.renderTarget = this.pmremGenerator.fromScene( this.sky );
+    this.renderTarget = this.pmremGenerator.fromScene(this.sky);
 
     this.scene.environment = this.renderTarget.texture;
   }
@@ -172,17 +196,19 @@ export default class World {
 
     return gui;
   }
+
+
+  createCamera() {
+    const camera = new THREE.PerspectiveCamera(
+      35, // fov = Field Of View
+      1, // dummy value for aspect ratio
+      0.1, // near clipping plane 
+      100, // far clipping plane
+    );
+    camera.position.set(-10, 2, 0);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    return camera;
+  }
 }
 
-function createCamera() {
-  const camera = new THREE.PerspectiveCamera(
-    35, // fov = Field Of View
-    1, // dummy value for aspect ratio
-    0.1, // near clipping plane
-    100, // far clipping plane
-  );
-  camera.position.set(2, 2, -1.5);
-  camera.lookAt(-10,0,-5);
-
-  return camera;
-}

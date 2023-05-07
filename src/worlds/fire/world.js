@@ -14,11 +14,11 @@ export default class World {
 
     //Add fire
     const fire = new Fire({
-      scene: this.scene,
-      updatables: this.loop.updatables,
       firePosition: { x: 0, y: 0, z: 0 },
       amount: 10000,
     });
+    this.loop.updatables.push(fire);
+    this.scene.add(fire);
 
 
     //Add lights

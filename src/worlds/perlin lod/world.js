@@ -37,13 +37,13 @@ export default class World {
       let d = this.chunk.camera.position.distanceTo(this.chunk.position);
       let lod;
       switch (true) {
-        case d <= 2:
+        case d <= 6:
           lod = 4;
           break;
-        case d <= 3:
+        case d <= 8:
           lod = 3;
           break;
-        case d <= 4:
+        case d <= 10:
           lod = 2;
           break;
         default:
