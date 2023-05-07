@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 
 export function createDirectionalLight() {
-    const directionalLight = new THREE.DirectionalLight('white', 2);
+    // A point light works better in our case, but this isn't ideal for further distances.
+    const directionalLight = new THREE.PointLight(0xd2dcdf, 1.2, 0);
     directionalLight.position.set(0, 100, -100);
     return directionalLight;
 }
