@@ -21,14 +21,13 @@ export default class World {
     this.scene.add(this.cube, this.light);
 
 
-    this.boidManager = new BoidManager({
+    const boidManager = new BoidManager({
       camera: this.camera,
-      scene: this.scene,
-      amount: 1000,
+      amount: 100,
       cubeSize: cubeSize
     });
-
-    this.loop.updatables.push(this.boidManager);
+    this.scene.add(boidManager);
+    this.loop.updatables.push(boidManager);
 
     //Camera controls
     const controls = new OrbitControls(this.camera, this.main.renderer.domElement);

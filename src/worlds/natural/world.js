@@ -122,10 +122,10 @@ export default class World {
     const geometryBoid = new THREE.ShapeGeometry(boidShape);
     const materialBoid = new THREE.MeshBasicMaterial({ color: 0x000022, side: THREE.DoubleSide });
     const defaultBoidMesh = new THREE.Mesh(geometryBoid, materialBoid);
-    this.boidManager = new BoidManager({
+
+    const boidManager = new BoidManager({
       camera: this.camera,
       boidMesh: defaultBoidMesh,
-      scene: this.scene,
       amount: 100,
       boidSize: 0.1,
       floorHeight: 3,
@@ -140,7 +140,8 @@ export default class World {
         conformDirection: 0.001 //Only neighbours: How much the boids want to match the direction/heading of their neighbours
       }
     });
-    this.loop.updatables.push(this.boidManager);
+    this.scene.add(boidManager);
+    this.loop.updatables.push(boidManager);
 
     //Controls creative mode flying:
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);

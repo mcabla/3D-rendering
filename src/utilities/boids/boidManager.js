@@ -1,18 +1,17 @@
 import * as THREE from 'three';
 import { Boid } from './boid.js';
 
-export class BoidManager {
+export class BoidManager extends THREE.Group {
     constructor({
         camera,
-        scene,
         amount,
         cubeSize,
         floorHeight,
         boidMesh,
         boidBehavior
     }) {
+        super();
         this.camera = camera;
-        this.scene = scene;
         this.amount = amount;
         this.boids = [];
         for (let i = 0; i < this.amount; i++) {
@@ -23,7 +22,7 @@ export class BoidManager {
                 boidMesh: boidMesh,
                 boidBehavior: boidBehavior
             });
-            this.scene.add(boid.createBoid());
+            this.add(boid.createBoid());
             this.boids.push(boid);
         }
     }
