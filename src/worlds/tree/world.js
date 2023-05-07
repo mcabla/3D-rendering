@@ -1,9 +1,7 @@
 import * as THREE from 'three';
-
 import { createLights } from './lights.js';
-
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import {exportGLTF} from "../../utilities/models/exporter.js";
+import { FlyControls } from 'three/addons/controls/FlyControls.js';
+import { exportGLTF } from "../../utilities/models/exporter.js";
 import {
   getCherryBlossomTree, getFern,
   getFlower,
@@ -12,7 +10,7 @@ import {
   getSpruce,
   getWeepingWillowTree
 } from "../../utilities/trees/tree.js";
-import {GUI} from "three/addons/libs/lil-gui.module.min.js";
+import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 
 const params = {
   trs: false,
@@ -69,30 +67,36 @@ export default class World {
 
     this.scene.add(this.light);
 
-    const controls = new OrbitControls( this.camera, main.renderer.domElement );
-    controls.maxPolarAngle = Math.PI * 0.495;
-    controls.target.set( 0, 1, 0 );
-    controls.minDistance = 0.0;
-    controls.maxDistance = 2000.0;
-    controls.update();
 
+    //Controls creative mode flying: 
+    const controls = new FlyControls(this.camera, this.main.renderer.domElement);
+    controls.movementSpeed = 1.5;
+    controls.domElement = this.main.renderer.domElement;
+    controls.rollSpeed = Math.PI / 2;
+    controls.dragToLook = true;
+    this.loop.updatables.push({
+      tick: function (delta) {
+        controls.update(delta);
+      }
+    });
 
+    
     const gui = new GUI();
 
-    let h = gui.addFolder( 'Settings' );
-    h.add( params, 'trs' ).name( 'Use TRS' );
-    h.add( params, 'onlyVisible' ).name( 'Only Visible Objects' );
-    h.add( params, 'binary' ).name( 'Binary (GLB)' );
-    h.add( params, 'maxTextureSize', 2, 8192 ).name( 'Max Texture Size' ).step( 1 );
+    let h = gui.addFolder('Settings');
+    h.add(params, 'trs').name('Use TRS');
+    h.add(params, 'onlyVisible').name('Only Visible Objects');
+    h.add(params, 'binary').name('Binary (GLB)');
+    h.add(params, 'maxTextureSize', 2, 8192).name('Max Texture Size').step(1);
 
-    h = gui.addFolder( 'Export' );
-    h.add( params, 'exportFern' ).name( 'Export Fern' );
-    h.add( params, 'exportMaple' ).name( 'Export Maple' );
-    h.add( params, 'exportFlower' ).name( 'Export Flower' );
-    h.add( params, 'exportSpruce' ).name( 'Export Spruce' );
-    h.add( params, 'exportPalmTree' ).name( 'Export Palm tree' );
-    h.add( params, 'exportWeepingWillow' ).name( 'Export Weeping Willow' );
-    h.add( params, 'exportCherryBlossom' ).name( 'Export Cherry Blossom' );
+    h = gui.addFolder('Export');
+    h.add(params, 'exportFern').name('Export Fern');
+    h.add(params, 'exportMaple').name('Export Maple');
+    h.add(params, 'exportFlower').name('Export Flower');
+    h.add(params, 'exportSpruce').name('Export Spruce');
+    h.add(params, 'exportPalmTree').name('Export Palm tree');
+    h.add(params, 'exportWeepingWillow').name('Export Weeping Willow');
+    h.add(params, 'exportCherryBlossom').name('Export Cherry Blossom');
 
     gui.open();
 
@@ -106,12 +110,12 @@ function createCamera() {
     0.1, // near clipping plane
     1000, // far clipping plane
   );
-  camera.position.set(0, -0.5, 1);
+  camera.position.set(0, 0, 2);
   return camera;
 }
 
 function exportFern() {
-  exportGLTF( getFern(), 'fern', params );
+  exportGLTF(getFern(), 'fern', params);
 }
 
 function exportMaple() {
@@ -148,7 +152,7 @@ function exportMaple() {
         };
       })
     };
-      exportGLTF( getMapleTree(),'maple', params, options );
+    exportGLTF(getMapleTree(), 'maple', params, options);
   }).catch((error) => {
     console.error(error);
   });
@@ -156,21 +160,21 @@ function exportMaple() {
 
 
 function exportFlower() {
-  exportGLTF( getFlower(), 'flower', params );
+  exportGLTF(getFlower(), 'flower', params);
 }
 
 function exportSpruce() {
-  exportGLTF( getSpruce(), 'spruce', params );
+  exportGLTF(getSpruce(), 'spruce', params);
 }
 
 function exportPalmTree() {
-  exportGLTF( getPalmTree(), 'palm', params );
+  exportGLTF(getPalmTree(), 'palm', params);
 }
 
 function exportWeepingWillow() {
-  exportGLTF( getWeepingWillowTree(), 'willow', params );
+  exportGLTF(getWeepingWillowTree(), 'willow', params);
 }
 
 function exportCherryBlossom() {
-  exportGLTF( getCherryBlossomTree(), 'cherry', params );
+  exportGLTF(getCherryBlossomTree(), 'cherry', params);
 }
