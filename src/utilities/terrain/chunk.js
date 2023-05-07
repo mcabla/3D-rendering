@@ -5,10 +5,15 @@ import { grassBasic } from '../materials/grassBasic.js';
 
 let treeModel = null;
 
-const texture = new THREE.TextureLoader().load( "assets/images/cherry-bark_diffuseOriginal.jpg" );
-texture.wrapS = THREE.RepeatWrapping;
-texture.wrapT = THREE.RepeatWrapping;
-texture.repeat.set( 1, 1 );
+const barkTexture = new THREE.TextureLoader().load( "assets/images/cherry-bark_diffuseOriginal.jpg" );
+barkTexture.wrapS = THREE.RepeatWrapping;
+barkTexture.wrapT = THREE.RepeatWrapping;
+barkTexture.repeat.set( 1, 1 );
+
+const leavesTexture = new THREE.TextureLoader().load( "assets/images/cherry-blossom-leaves.jpg" );
+leavesTexture.wrapS = THREE.RepeatWrapping;
+leavesTexture.wrapT = THREE.RepeatWrapping;
+leavesTexture.repeat.set( 1, 1 );
 
 export class Chunk {
     constructor({
@@ -53,16 +58,10 @@ export class Chunk {
                     this.placeTrees();
                 },
                 // called while loading is progressing
-                function ( xhr ) {
-
-                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
-                },
+                ( xhr ) => {},
                 // called when loading has errors
-                function ( error ) {
-
+                ( error ) => {
                     console.log( 'An error happened' );
-
                 }
             );
         }
@@ -104,14 +103,6 @@ export class Chunk {
         this.lod = lod;
         //Changes are required.
         this.generateTerrain();
-        if (this.trees) {
-            if (this.treeLeavesMesh) {
-                this.treeLeavesMesh.instanceMatrix.needsUpdate = true;
-            }
-            if (this.treeTrunkMesh) {
-                this.treeTrunkMesh.instanceMatrix.needsUpdate = true;
-            }
-        }
         return true;
     }
 
@@ -163,7 +154,7 @@ export class Chunk {
 
                 let terrainHeight = geometry.attributes.position.array[index];
                 // Add trees only when LOD is high enough and trees haven't been placed yet
-                if (this.trees && level >= 5 && terrainHeight > this.waterHeight + 0.09 && this.treePositions.length < this.treesCount) {
+                if (this.trees && level >= 1 && terrainHeight > this.waterHeight + 0.09 && this.treePositions.length < this.treesCount) {
                     const freq = this.terrainGen.baseFreq * (this.terrainGen.freqGain ** 10) * 50;
                     const ampl = this.terrainGen.baseAmpl * (this.terrainGen.amplShrink ** 10) * 600000;
                     const xP = x / this.chunkSize * freq + xL / segments * freq;
@@ -207,31 +198,23 @@ export class Chunk {
         const oldTrunkMesh = this.treeTrunkMesh;
 
         const leavesGeometry = treeModel ? treeModel.children[0].geometry: new THREE.SphereGeometry(0.05, 1, 1);
-        const leavesMaterial = new THREE.MeshLambertMaterial({ color: 0xef9ac4 });
+        const leavesMaterial = new THREE.MeshPhongMaterial({ map: leavesTexture });
         this.treeLeavesMesh = new THREE.InstancedMesh(leavesGeometry, leavesMaterial, this.treePositions.length);
-        //this.treeLeavesMesh.castShadow = true;
-        //this.treeLeavesMesh.recieveShadow = true;
         const trunkGeometry = treeModel ? treeModel.children[1].geometry: new THREE.SphereGeometry(0.05, 1, 1);
-        const trunkMaterial = new THREE.MeshPhongMaterial({ map: texture });
+        const trunkMaterial = new THREE.MeshPhongMaterial({ map: barkTexture });
         this.treeTrunkMesh = new THREE.InstancedMesh(trunkGeometry, trunkMaterial, this.treePositions.length);
-        //this.treeLeavesMesh.castShadow = true;
-        // this.treeLeavesMesh.recieveShadow = true;
 
         const treeDummy = new THREE.Object3D();
-        treeDummy.rotation.x =  -Math.PI/2;
-        treeDummy.rotation.y =  -Math.PI/4;
-        treeDummy.rotation.z =  -Math.PI;
-        //treeDummy.rotation.y =  -Math.PI;// / 2; //-Math.PI / 2;
-        //treeDummy.rotation.z = Math.PI;
-        treeDummy.scale.set(2,2,2);
+        if (treeModel) {
+            treeDummy.rotation.copy(new THREE.Euler(-Math.PI/2 - Math.PI / 8 - Math.PI / 16, 0,  Math.PI / 2 + Math.PI / 16));
+        }
         this.treePositions.forEach((pos, i) => {
-            treeDummy.position.x = pos.x;
-            treeDummy.position.y = pos.y;
+            treeDummy.position.x = pos.x - 0.099397;
+            treeDummy.position.y = pos.y + 0.06;
             treeDummy.position.z = pos.z;
             treeDummy.updateMatrix();
             this.treeLeavesMesh.setMatrixAt(i, treeDummy.matrix);
             this.treeTrunkMesh.setMatrixAt(i, treeDummy.matrix);
-            // console.log(treeDummy.position)
         });
 
         if (oldLeavesMesh){
