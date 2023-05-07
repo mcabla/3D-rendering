@@ -127,10 +127,10 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec3 swappedSunDirection = vec3(-sunDirection.x, sunDirection.z, -sunDirection.y);
             vec3 lightDirection = normalize(-swappedSunDirection);
 
-            vec3 ambient = ambientColor * ambientIntensity * texel.xyz;
+            vec3 ambient = ambientColor * max(0.0, ambientIntensity) * texel.xyz;
 
-            float t = clamp((vPosition.y - waterLevel) / (surfaceLevel + 0.3 - waterLevel), 0.0, 1.0);
-            float diffuseMax = mix(0.3, 10.0, smoothstep(0.0, 1.0, t));
+            float t = clamp((vPosition.y - waterLevel) / (surfaceLevel + 0.35 - waterLevel), 0.0, 1.0);
+            float diffuseMax = mix(0.2, 10.0, smoothstep(0.0, 1.0, t));
 
             float diffuse = min(diffuseMax, max(0.0, dot(mapNormal, lightDirection)));
             vec3 sunLight = sunColor * max(0.0, sunIntensity) * diffuse * texel.xyz;

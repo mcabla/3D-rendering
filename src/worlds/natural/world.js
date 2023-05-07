@@ -106,9 +106,9 @@ export default class World {
     terrainMaterial.uniforms['stoneAngle'].value = 0.6;
     terrainMaterial.uniforms['grassAngle'].value = 0.75;
     terrainMaterial.uniforms['sunColor'].value = this.directionalLight.color;
-    terrainMaterial.uniforms['sunIntensity'].value = this.directionalLight.intensity;
+    terrainMaterial.uniforms['sunIntensity'].value = this.directionalLight.intensity + 0.3;
     terrainMaterial.uniforms['ambientColor'].value = this.ambientLight.color;
-    terrainMaterial.uniforms['ambientIntensity'].value = this.ambientLight.intensity + 0.8;
+    terrainMaterial.uniforms['ambientIntensity'].value = this.ambientLight.intensity + 0.5;
 
     //Add boids
     const boidSize = 0.03
@@ -176,9 +176,9 @@ export default class World {
 
     terrainMaterial.uniforms.sunDirection.value = this.sun;
 
-    this.directionalLight.position.x = this.sun.x * 100;
-    this.directionalLight.position.y = this.sun.y * 100;
-    this.directionalLight.position.z = this.sun.z * 100;
+    this.directionalLight.position.x = this.sun.x * 1000 + this.camera.position.x;
+    this.directionalLight.position.y = this.sun.y * 1000 + this.camera.position.y;
+    this.directionalLight.position.z = this.sun.z * 1000 + this.camera.position.z;
 
 
     if (this.renderTarget !== undefined) {
