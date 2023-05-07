@@ -24,7 +24,7 @@ export default class World {
     this.boidManager = new BoidManager({
       camera: this.camera,
       scene: this.scene,
-      amount: 100,
+      amount: 1000,
       cubeSize: cubeSize
     });
 
