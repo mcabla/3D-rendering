@@ -5,6 +5,7 @@ import { createLights } from './lights.js';
 import { BoidManager } from '../../utilities/boids/boidManager.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+//*Inspired by: https://github.com/juanuys/boids
 
 export default class World {
   constructor(main) {

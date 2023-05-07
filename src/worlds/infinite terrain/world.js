@@ -12,9 +12,6 @@ import { Sky } from 'three/addons/objects/Sky.js';
 import { Fire } from '../../utilities/fire/fire.js';
 
 
-
-//Inspiration: 
-
 export default class World {
   constructor(main) {
     this.main = main;
@@ -23,19 +20,19 @@ export default class World {
     this.camera = this.createCamera();
     this.scene.background = new THREE.Color(0x66BBFF);
 
-    //Custom vars
+    //*Custom vars
     const chunkSize = 5;
     const viewDistance = 7; //This means 7x7=49 chunks are loaded at once
+
+
+    //*Add Clouds
     //The map is only 5*7 = 35 => 35x35 but it looks better if the cloud field goes on a bit further
-
-
-    //Add Clouds
     const cloudFieldSize = 50;
-    this.cloudManager = new CloudManager({ camera: this.camera, cloudLevel: 6, cloudfieldSize: cloudFieldSize });
-    this.scene.add(this.cloudManager.getClouds());
-    this.loop.updatables.push(this.cloudManager);
+    const cloudManager = new CloudManager({ camera: this.camera, cloudLevel: 6, cloudfieldSize: cloudFieldSize });
+    this.scene.add(cloudManager);
+    this.loop.updatables.push(cloudManager);
 
-    //Add chunks
+    //*Add terrain
     const terrainGen = {
       //*Attention: If you overwrite one of these you need to overwrite all of them!
       baseFreq: 1,
@@ -88,10 +85,7 @@ export default class World {
 
     this.gui = this.createGUI();
 
-    //Add sky and light
-
-    // this.light = createLights();
-    // this.scene.add(this.light);
+    //Add sky and sun
     this.sun = new THREE.Vector3();
     this.sky = new Sky();
     this.sky.scale.setScalar(10000);

@@ -4,9 +4,10 @@ import { ImprovedNoise } from 'three/addons/math/ImprovedNoise.js';
 
 //Inspired by: https://github.com/mrdoob/three.js/blob/master/examples/webgl_buffergeometry_custom_attributes_particles.html
 
-export class CloudManager {
+export class CloudManager extends THREE.Group {
 
     constructor({ camera, cloudLevel = 3, particleCount = 10000, cloudfieldSize = 50, perlinFreq = 0.1 }) {
+        super();
         this.cameraPos = camera.position;
         this.cloudLevel = cloudLevel;
         this.particleCount = particleCount;//Needs to have an integer square root
@@ -37,6 +38,7 @@ export class CloudManager {
         materialParticle.uniforms.opacity.value = 0.05;//Make clouds transparent
         materialParticle.uniforms.pointTexture.value = new THREE.TextureLoader().load('assets/images/sprites/cloudparticle1.png');
         this.pointManager = new THREE.Points(this.geometry, materialParticle);
+        this.add(this.pointManager);
     }
 
     tick = (delta) => {
@@ -65,8 +67,5 @@ export class CloudManager {
             return 0;
     }
 
-    getClouds() {
-        return this.pointManager;
-    }
 }
 

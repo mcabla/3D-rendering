@@ -19,9 +19,18 @@ export default class World {
     this.scene.add(this.cube);
 
     //Add Clouds
-    this.cloudManager = new CloudManager({ camera: this.camera });
-    this.scene.add(this.cloudManager.getClouds());
-    this.loop.updatables.push(this.cloudManager);
+    const cloudManager = new CloudManager({
+      camera: this.camera,
+      cloudfieldSize: 100,
+      particleCount: 50000
+    });
+    this.scene.add(cloudManager);
+    this.loop.updatables.push(cloudManager);
+
+    //*Add light
+    const light = new THREE.DirectionalLight('white', 2);
+    light.position.set(10, 10, 10);
+    this.scene.add(light);
 
     //Controls creative mode flying: 
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);

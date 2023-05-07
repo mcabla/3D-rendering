@@ -15,6 +15,8 @@ leavesTexture.wrapS = THREE.RepeatWrapping;
 leavesTexture.wrapT = THREE.RepeatWrapping;
 leavesTexture.repeat.set( 1, 1 );
 
+//*Inspired by: https://threejs.org/examples/?q=terra#webgl_geometry_terrain_raycast
+
 export class Chunk {
     constructor({
         camera,
@@ -140,7 +142,7 @@ export class Chunk {
         for (let zL = 0; zL < l; zL++) {
             for (let xL = 0; xL < l; xL++) {
                 let index = 3 * zL * l + 3 * xL + 1;
-                //*Stop gaps by lowering chunks that are further away into the ground a bit. Hacky but it works!
+                //* Stop gaps by lowering chunks that are further away into the ground a bit. Hacky but it works!
                 geometry.attributes.position.array[index] = level * 0.01;
                 for (let i = 0; i <= level; i++) {
                     const freq = this.terrainGen.baseFreq * (this.terrainGen.freqGain ** i);

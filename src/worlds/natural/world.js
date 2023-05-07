@@ -41,9 +41,9 @@ export default class World {
 
     //Add clouds
     const cloudFieldSize = 50;
-    this.cloudManager = new CloudManager({ camera: this.camera, cloudLevel: 6, cloudfieldSize: cloudFieldSize });
-    this.scene.add(this.cloudManager.getClouds());
-    this.loop.updatables.push(this.cloudManager);
+    const cloudManager = new CloudManager({ camera: this.camera, cloudLevel: 6, cloudfieldSize: cloudFieldSize });
+    this.scene.add(cloudManager);
+    this.loop.updatables.push(cloudManager);
 
     // Add sky
     this.sky = new Sky();
