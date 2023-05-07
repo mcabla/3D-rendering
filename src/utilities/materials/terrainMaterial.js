@@ -101,7 +101,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec4 grassTexel1 = texture2D(grassTexture, rotatedUv * 20.0);
             vec4 grassTexel2 = texture2D(grass2Texture, rotatedUv * 20.0);
             
-            // Blend the two textures together using the alpha value
+            // Blend the two textures together using the seed
             vec4 grassTexel = mix(grassTexel1, grassTexel2, smoothstep(0.49, 0.51, seed));
             grassTexel = mix(grassTexel, grassTexel1, smoothstep(.99, 1.0, seed));
 
