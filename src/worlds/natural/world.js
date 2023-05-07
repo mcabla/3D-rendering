@@ -35,7 +35,7 @@ export default class World {
     this.sun = new THREE.Vector3();
 
     //Add water
-    this.water = createWater(this.scene, 0);
+    this.water = createWater(this.scene, waterHeight);
     this.scene.add(this.water);
     this.loop.updatables.push(this.water);
 
@@ -69,7 +69,7 @@ export default class World {
     this.scene.add(fire);
 
     //*Add terrain
-    
+
     const terrainGen = {
       baseFreq: 1,
       freqGain: 3,
@@ -105,6 +105,10 @@ export default class World {
     terrainMaterial.uniforms['surfaceLevel'].value = waterHeight + 0.09;
     terrainMaterial.uniforms['stoneAngle'].value = 0.6;
     terrainMaterial.uniforms['grassAngle'].value = 0.75;
+    terrainMaterial.uniforms['sunColor'].value = this.directionalLight.color;
+    terrainMaterial.uniforms['sunIntensity'].value = this.directionalLight.intensity;
+    terrainMaterial.uniforms['ambientColor'].value = this.ambientLight.color;
+    terrainMaterial.uniforms['ambientIntensity'].value = this.ambientLight.intensity + 0.8;
 
     //Add boids
     const boidSize = 0.03
@@ -202,7 +206,7 @@ export default class World {
     const camera = new THREE.PerspectiveCamera(
       35, // fov = Field Of View
       1, // dummy value for aspect ratio
-      0.1, // near clipping plane 
+      0.1, // near clipping plane
       100, // far clipping plane
     );
     camera.position.set(-10, 2, 0);

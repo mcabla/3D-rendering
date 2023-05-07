@@ -25,7 +25,9 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         waterLevel: { type: "float", value: -0.2 },
         surfaceLevel: { type: "float", value: 0.0 },
         sunColor: { type: "c", value: new THREE.Color(0xffffff) },
-        ambientColor: { type: "c", value: new THREE.Color(0xffffff) },
+        sunIntensity: { type: "float", value: 1.0 },
+        ambientColor: { type: "c", value: new THREE.Color(0xfff9b2) },
+        ambientIntensity: { type: "float", value: 1.0 },
         sunDirection: { type: "v3", value: new THREE.Vector3( 0.70707, 0.70707, 0.0 ) }
     },
     vertexShader: /* glsl */`
@@ -73,7 +75,9 @@ export const terrainMaterial = new THREE.ShaderMaterial({
         
         uniform vec3 sunDirection;
         uniform vec3 sunColor;
+        uniform float sunIntensity;
         uniform vec3 ambientColor;
+        uniform float ambientIntensity;
         
         varying vec2 vUv;
         varying vec3 vNormal;
@@ -83,38 +87,41 @@ export const terrainMaterial = new THREE.ShaderMaterial({
 
         void main() {            
             float angle = dot(normalize(vNormal), vec3(0.0, 1.0, 0.0));
-            
+
             float randAngle = ceil(mod(vUv.x*20.0, 4.0))*0.785398163397;
             vec2 rotatedUv = vec2(cos(randAngle) * (vUv.x - 0.5) - sin(randAngle) * (vUv.y - 0.5) + 0.5, sin(randAngle) * (vUv.x - 0.5) + cos(randAngle) * (vUv.y - 0.5) + 0.5);
-            
-            vec4 stoneTexel = texture2D(stoneTexture, rotatedUv  * 20.0);
+
+            vec4 stoneTexel = texture2D(stoneTexture, vUv  * 20.0);
             vec4 grassTexel = texture2D(grassTexture, rotatedUv * 20.0);
             vec4 sandTexel = texture2D(sandTexture, vUv * 20.0);
-            
+
             vec4 stoneNormal = texture2D(stoneNormalMap, rotatedUv  * 20.0);
             vec4 grassNormal = vec4(vec3(1.0, 1.0, 1.0) * 0.5 + 0.5, 1.0);
             vec4 sandNormal = texture2D(sandNormalMap, vUv * 20.0);
-            
+
             vec4 heightTexel = mix(sandTexel, grassTexel, smoothstep(waterLevel, surfaceLevel, vPosition.y));
             vec4 heightNormal = mix(sandNormal, grassNormal, smoothstep(waterLevel, surfaceLevel, vPosition.y));
-            
+
             vec4 texel = mix(stoneTexel, heightTexel, smoothstep(stoneAngle, grassAngle, angle)); 
             vec4 normalMap = mix(stoneNormal, heightNormal, smoothstep(stoneAngle, grassAngle, angle));
-            
+
             vec3 normal = normalize(vNormal);
             vec3 tangent = normalize(vTangent);
             vec3 bitangent = normalize(vBitangent);
-            
+
             vec3 mapNormal = normalize(vec3(normalMap.xyz * 2.0 - 1.0)) * mat3(bitangent, tangent, normal);
-           
+
             vec3 swappedSunDirection = vec3(-sunDirection.x, sunDirection.z, -sunDirection.y);
             vec3 lightDirection = normalize(-swappedSunDirection);
-            
-            float diffuse = max(0.0, dot(mapNormal, lightDirection));            
-            vec3 ambient = ambientColor * texel.xyz;
 
-            vec3 sunLight = sunColor * diffuse * texel.xyz;
-        
+            vec3 ambient = ambientColor * ambientIntensity * texel.xyz;
+
+            float t = clamp((vPosition.y - waterLevel) / (surfaceLevel + 0.3 - waterLevel), 0.0, 1.0);
+            float diffuseMax = mix(0.3, 10.0, smoothstep(0.0, 1.0, t));
+
+            float diffuse = min(diffuseMax, max(0.0, dot(mapNormal, lightDirection)));
+            vec3 sunLight = sunColor * max(0.0, sunIntensity) * diffuse * texel.xyz;
+
             gl_FragColor = vec4(ambient + sunLight, texel.a);
         }
         `,
