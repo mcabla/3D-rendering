@@ -106,9 +106,9 @@ export default class World {
     terrainMaterial.uniforms['stoneAngle'].value = 0.6;
     terrainMaterial.uniforms['grassAngle'].value = 0.75;
     terrainMaterial.uniforms['sunColor'].value = this.directionalLight.color;
-    terrainMaterial.uniforms['sunIntensity'].value = this.directionalLight.intensity*0.7;
+    terrainMaterial.uniforms['sunIntensity'].value = this.directionalLight.intensity;
     terrainMaterial.uniforms['ambientColor'].value = this.ambientLight.color;
-    terrainMaterial.uniforms['ambientIntensity'].value = this.ambientLight.intensity + 0.9;
+    terrainMaterial.uniforms['ambientIntensity'].value = this.ambientLight.intensity + 0.8;
 
     //Add boids
     const boidSize = 0.03
