@@ -154,7 +154,7 @@ export class Chunk {
 
                 let terrainHeight = geometry.attributes.position.array[index];
                 // Add trees only when LOD is high enough and trees haven't been placed yet
-                if (this.trees && level >= 5 && terrainHeight > this.waterHeight + 0.09 && this.treePositions.length < this.treesCount) {
+                if (this.trees && level >= 1 && terrainHeight > this.waterHeight + 0.09 && this.treePositions.length < this.treesCount) {
                     const freq = this.terrainGen.baseFreq * (this.terrainGen.freqGain ** 10) * 50;
                     const ampl = this.terrainGen.baseAmpl * (this.terrainGen.amplShrink ** 10) * 600000;
                     const xP = x / this.chunkSize * freq + xL / segments * freq;
