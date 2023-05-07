@@ -1,10 +1,12 @@
 import * as THREE from 'three';
-import { createLights } from './lights.js';
+import { createAmbientLight } from './lightAmbient.js';
+import { createDirectionalLight } from './lightDirectional.js';
 import { FlyControls } from 'three/addons/controls/FlyControls.js';
 import { ChunkManager } from '../../utilities/terrain/chunkManager.js';
 import { terrainMaterial } from '../../utilities/materials/terrainMaterial.js'
 import { createWater } from '../../utilities/materials/water.js';
 import {BoidManager} from "../../utilities/boids/boidManager.js";
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { CloudManager } from '../../utilities/clouds/clouds.js';
 
@@ -46,8 +48,11 @@ export default class World {
     this.camera = createCamera();
 
     //Add light
-    this.light = createLights();
-    this.scene.add(this.light);
+    this.ambientLight = createAmbientLight();
+    this.scene.add(this.ambientLight);
+    this.directionalLight = createDirectionalLight();
+    this.scene.add(this.directionalLight);
+
     this.sun = new THREE.Vector3();
 
     //Add water
@@ -121,6 +126,14 @@ export default class World {
       }
     });
 
+    //Add gui
+    this.parameters = {
+      elevation: 0,
+      azimuth: 115
+    };
+
+    this.gui = this.createGUI();
+
   }
 
 
@@ -133,6 +146,13 @@ export default class World {
     this.sky.material.uniforms[ 'sunPosition' ].value.copy( this.sun );
     this.water.material.uniforms[ 'sunDirection' ].value.copy( this.sun ).normalize();
 
+    terrainMaterial.uniforms.sunDirection.value = this.sun;
+
+    this.directionalLight.position.x = this.sun.x * 100;
+    this.directionalLight.position.y = this.sun.y * 100;
+    this.directionalLight.position.z = this.sun.z * 100;
+
+
     if ( this.renderTarget !== undefined ) {
       this.renderTarget.dispose();
     }
@@ -140,10 +160,18 @@ export default class World {
     this.renderTarget = this.pmremGenerator.fromScene( this.sky );
 
     this.scene.environment = this.renderTarget.texture;
-
   }
 
+  createGUI() {
+    const gui = new GUI({ container: document.getElementById("sceneContainer") });
 
+    const folderSky = gui.addFolder('Sky');
+    folderSky.add(this.parameters, 'elevation', 0, 90, 0.1).onChange(() => this.updateSun());
+    folderSky.add(this.parameters, 'azimuth', - 180, 180, 0.1).onChange(() => this.updateSun());
+    folderSky.open();
+
+    return gui;
+  }
 }
 
 function createCamera() {
@@ -153,8 +181,8 @@ function createCamera() {
     0.1, // near clipping plane
     100, // far clipping plane
   );
-  camera.position.set(-10, 2, 0);
-  camera.lookAt(new THREE.Vector3(0, 0, 0));
+  camera.position.set(2, 2, -1.5);
+  camera.lookAt(-10,0,-5);
 
   return camera;
 }

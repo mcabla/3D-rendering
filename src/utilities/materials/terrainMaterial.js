@@ -108,7 +108,7 @@ export const terrainMaterial = new THREE.ShaderMaterial({
             vec3 mapNormal = normalize(vec3(normalMap.xyz * 2.0 - 1.0)) * mat3(bitangent, tangent, normal);
            
             vec3 swappedSunDirection = vec3(-sunDirection.x, sunDirection.z, -sunDirection.y);
-            vec3 lightDirection = normalize(swappedSunDirection);
+            vec3 lightDirection = normalize(-swappedSunDirection);
             
             float diffuse = max(0.0, dot(mapNormal, lightDirection));            
             vec3 ambient = ambientColor * texel.xyz;
