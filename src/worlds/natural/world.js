@@ -195,7 +195,7 @@ export default class World {
     const gui = new GUI({ container: document.getElementById("sceneContainer") });
 
     const folderSky = gui.addFolder('Sky');
-    folderSky.add(this.parameters, 'elevation', 0, 89, 0.1).onChange(() => this.updateSun());
+    folderSky.add(this.parameters, 'elevation', 0, 90, 0.1).onChange(() => this.updateSun());
     folderSky.add(this.parameters, 'azimuth', - 180, 180, 0.1).onChange(() => this.updateSun());
     folderSky.open();
 
