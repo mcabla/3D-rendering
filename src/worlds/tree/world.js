@@ -63,7 +63,7 @@ export default class World {
     cherryBlossomTree.position.x = 2;
     this.scene.add(cherryBlossomTree);
 
-    this.light = createLights();
+    this.light = createLights(2);
 
     this.scene.add(this.light);
 
@@ -72,7 +72,7 @@ export default class World {
     const controls = new FlyControls(this.camera, this.main.renderer.domElement);
     controls.movementSpeed = 1.5;
     controls.domElement = this.main.renderer.domElement;
-    controls.rollSpeed = Math.PI / 2;
+    controls.rollSpeed = Math.PI / 3;
     controls.dragToLook = true;
     this.loop.updatables.push({
       tick: function (delta) {
@@ -80,7 +80,33 @@ export default class World {
       }
     });
 
-    
+    //*Add ground plane
+    // Load the grass texture
+    const textureLoader = new THREE.TextureLoader();
+    const grassTexture = new THREE.TextureLoader().load('assets/images/grass2-seamless2-bright.jpg');
+    grassTexture.repeat.set(1000, 1000); // Adjust the repeat values as needed
+    grassTexture.wrapS = THREE.RepeatWrapping;
+    grassTexture.wrapT = THREE.RepeatWrapping;
+    const planeMaterial = new THREE.MeshStandardMaterial({
+      map: grassTexture,
+      roughness: 1.0,
+    });
+
+    // Create a plane geometry with a large size
+    const planeGeometry = new THREE.PlaneBufferGeometry(1000, 1000);
+
+    // Create a mesh using the geometry and material
+    const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+
+    // Rotate the plane to be parallel to the ground (optional)
+    planeMesh.rotation.x = -Math.PI / 2;
+
+    // Add the plane to the scene
+    this.scene.add(planeMesh);
+
+
+
+    //Add GUI
     const gui = new GUI();
 
     let h = gui.addFolder('Settings');
@@ -110,7 +136,7 @@ function createCamera() {
     0.1, // near clipping plane
     1000, // far clipping plane
   );
-  camera.position.set(0, 0, 2);
+  camera.position.set(0, 1, 2);
   return camera;
 }
 
